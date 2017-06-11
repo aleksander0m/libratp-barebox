@@ -1,0 +1,237 @@
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/*
+ * Copyright (C) 2017 Zodiac Inflight Innovations
+ * All rights reserved.
+ *
+ * Author: Aleksander Morgado <aleksander@aleksander.es>
+ */
+
+#ifndef RATP_BAREBOX_H
+#define RATP_BAREBOX_H
+
+#include <stdio.h>
+#include <termios.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#include <ratp.h>
+
+/******************************************************************************/
+
+/**
+ * SECTION: ratp-barebox-link
+ * @title: Barebox over RATP
+ * @short_description: Barebox operations over the RATP link
+ *
+ * This section defines the methods that allow the user to run barebox specific
+ * operations over the RATP link.
+ */
+
+/**
+ * ratp_barebox_link_ping:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ *
+ * Sends a PING to barebox and waits for the PONG as return.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_ping (ratp_link_t   *ratp,
+                                      unsigned long  timeout_ms);
+
+/**
+ * ratp_barebox_link_command:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @command: command to send, in ASCII.
+ * @out_errno_result: output location to store the errno result returned.
+ * @out_stdout_result: output location to store the resulting stdout output..
+ *
+ * Sends a command to barebox and waits for it to finish.
+ * Both the command result and the standard output it generated are returned.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_command (ratp_link_t    *ratp,
+                                         unsigned long   timeout_ms,
+                                         const char     *command,
+                                         uint32_t       *out_errno_result,
+                                         char          **out_stdout_result);
+
+/**
+ * ratp_barebox_link_getenv:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @env_name: name of the environment variable to read.
+ * @env_value: output location to store the value of the environment variable.
+ *
+ * Reads the contents of a given environment variable in the remote barebox
+ * instance.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_getenv (ratp_link_t    *ratp,
+                                        unsigned long   timeout_ms,
+                                        const char     *env_name,
+                                        char          **env_value);
+
+/******************************************************************************/
+
+/**
+ * SECTION: ratp-barebox-log
+ * @title: Library logging
+ * @short_description: Methods to redirect library logs to a user-defined output.
+ *
+ * This section defines the methods and types that allow the user to configure
+ * how the library logging is exposed.
+ */
+
+/**
+ * ratp_barebox_log_level_t:
+ * @RATP_BAREBOX_LOG_LEVEL_ERROR: Only error messages are reported.
+ * @RATP_BAREBOX_LOG_LEVEL_WARNING: Warning and error messages are reported.
+ * @RATP_BAREBOX_LOG_LEVEL_INFO: Info, warning and error messages are reported.
+ * @RATP_BAREBOX_LOG_LEVEL_DEBUG: All messages, including debug ones, are reported.
+ *
+ * Logging level.
+ */
+typedef enum {
+    RATP_BAREBOX_LOG_LEVEL_ERROR = 0,
+    RATP_BAREBOX_LOG_LEVEL_WARNING,
+    RATP_BAREBOX_LOG_LEVEL_INFO,
+    RATP_BAREBOX_LOG_LEVEL_DEBUG
+} ratp_barebox_log_level_t;
+
+/**
+ * ratp_barebox_log_level_str:
+ * @level: a #ratp_barebox_log_level_t.
+ *
+ * Gets a description for the given #ratp_barebox_log_level_t.
+ *
+ * Returns: a constant string.
+ */
+const char *ratp_barebox_log_level_str (ratp_barebox_log_level_t level);
+
+/**
+ * ratp_barebox_log_set_level:
+ * @level: a #ratp_barebox_log_level_t.
+ *
+ * Sets the logging level.
+ *
+ * By default the logging level is %RATP_BAREBOX_LOG_LEVEL_ERROR.
+ */
+void ratp_barebox_log_set_level (ratp_barebox_log_level_t level);
+
+/**
+ * ratp_barebox_log_get_level:
+ *
+ * Gets the current logging level configured.
+ *
+ * Returns: a #ratp_barebox_log_level_t.
+ */
+ratp_barebox_log_level_t ratp_barebox_log_get_level (void);
+
+/**
+ * ratp_barebox_log_handler_t:
+ * @level: the #ratp_barebox_log_level_t.
+ * @tid: thread ID where the log message was generated.
+ * @message: the log message.
+ *
+ * Logging handler.
+ */
+typedef void (* ratp_barebox_log_handler_t) (ratp_barebox_log_level_t  level,
+                                             unsigned long             tid,
+                                             const char               *message);
+
+/**
+ * ratp_barebox_log_set_handler:
+ * @handler: a #ratp_barebox_log_handler_t, or %NULL.
+ *
+ * Set logging handler.
+ *
+ * This method would be usually called once before any other operation with the
+ * library, e.g. even before ratp_init().
+ */
+void ratp_barebox_log_set_handler (ratp_barebox_log_handler_t handler);
+
+/******************************************************************************/
+
+
+/**
+ * SECTION: ratp-barebox-version
+ * @title: Library version
+ * @short_description: Methods and types to report library version.
+ *
+ * This section defines the types and methods exposed by the library to report
+ * its own version both at build time and at run time.
+ */
+
+/**
+ * RATP_BAREBOX_MAJOR_VERSION:
+ *
+ * Evaluates to the major version number of libratp which this source
+ * is compiled against.
+ */
+#define RATP_BAREBOX_MAJOR_VERSION (@RATP_BAREBOX_MAJOR_VERSION@)
+
+/**
+ * RATP_BAREBOX_MINOR_VERSION:
+ *
+ * Evaluates to the minor version number of libratp which this source
+ * is compiled against.
+ */
+#define RATP_BAREBOX_MINOR_VERSION (@RATP_BAREBOX_MINOR_VERSION@)
+
+/**
+ * RATP_BAREBOX_MICRO_VERSION:
+ *
+ * Evaluates to the micro version number of libratp which this source
+ * compiled against.
+ */
+#define RATP_BAREBOX_MICRO_VERSION (@RATP_BAREBOX_MICRO_VERSION@)
+
+/**
+ * RATP_BAREBOX_CHECK_VERSION:
+ * @major: major version (e.g. 1 for version 1.2.5)
+ * @minor: minor version (e.g. 2 for version 1.2.5)
+ * @micro: micro version (e.g. 5 for version 1.2.5)
+ *
+ * Returns: %TRUE if the version of the libratp header file
+ * is the same as or newer than the given version.
+ */
+#define RATP_BAREBOX_CHECK_VERSION(major,minor,micro)                   \
+    (RATP_BAREBOX_MAJOR_VERSION > (major) ||                            \
+     (RATP_BAREBOX_MAJOR_VERSION == (major) && RATP_BAREBOX_MINOR_VERSION > (minor)) || \
+     (RATP_BAREBOX_MAJOR_VERSION == (major) && RATP_BAREBOX_MINOR_VERSION == (minor) && RATP_BAREBOX_MICRO_VERSION >= (micro)))
+
+/**
+ * ratp_barebox_get_major_version:
+ *
+ * Runtime check of the major library version.
+ *
+ * Returns: the major library version.
+ */
+unsigned int ratp_barebox_get_major_version (void);
+
+/**
+ * ratp_barebox_get_minor_version:
+ *
+ * Runtime check of the minor library version.
+ *
+ * Returns: the minor library version.
+ */
+unsigned int ratp_barebox_get_minor_version (void);
+
+/**
+ * ratp_barebox_get_micro_version:
+ *
+ * Runtime check of the micro library version.
+ *
+ * Returns: the micro library version.
+ */
+unsigned int ratp_barebox_get_micro_version (void);
+
+#endif /* LIBRATP_BAREBOX_H */

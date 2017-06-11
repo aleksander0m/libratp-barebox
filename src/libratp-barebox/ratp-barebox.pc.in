@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=${prefix}/include
+
+Name: ratp-barebox
+Description: Library to control barebox over a RATP link
+Version: @VERSION@
+Requires: ratp
+Libs: -L${libdir} -lratp-barebox
+Cflags: -I${includedir}/
