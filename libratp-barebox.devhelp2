@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<book xmlns="http://www.devhelp.net/book" title="libratp-barebox Reference Manual" link="index.html" author="" name="libratp-barebox" version="2" language="c">
+  <chapters>
+    <sub name="RATP barebox library core utilities" link="pt01.html">
+      <sub name="Library logging" link="libratp-barebox-Library-logging.html"/>
+      <sub name="Library version" link="libratp-barebox-Library-version.html"/>
+    </sub>
+    <sub name="RATP link operations" link="pt02.html">
+      <sub name="Barebox over RATP" link="libratp-barebox-Barebox-over-RATP.html"/>
+    </sub>
+    <sub name="API Index" link="ix01.html"/>
+  </chapters>
+  <functions>
+    <keyword type="function" name="ratp_barebox_log_level_str ()" link="libratp-barebox-Library-logging.html#ratp-barebox-log-level-str"/>
+    <keyword type="function" name="ratp_barebox_log_handler_t ()" link="libratp-barebox-Library-logging.html#ratp-barebox-log-handler-t"/>
+    <keyword type="function" name="ratp_barebox_log_set_level ()" link="libratp-barebox-Library-logging.html#ratp-barebox-log-set-level"/>
+    <keyword type="function" name="ratp_barebox_log_get_level ()" link="libratp-barebox-Library-logging.html#ratp-barebox-log-get-level"/>
+    <keyword type="function" name="ratp_barebox_log_set_handler ()" link="libratp-barebox-Library-logging.html#ratp-barebox-log-set-handler"/>
+    <keyword type="enum" name="enum ratp_barebox_log_level_t" link="libratp-barebox-Library-logging.html#ratp-barebox-log-level-t"/>
+    <keyword type="macro" name="RATP_BAREBOX_CHECK_VERSION()" link="libratp-barebox-Library-version.html#RATP-BAREBOX-CHECK-VERSION:CAPS"/>
+    <keyword type="function" name="ratp_barebox_get_major_version ()" link="libratp-barebox-Library-version.html#ratp-barebox-get-major-version"/>
+    <keyword type="function" name="ratp_barebox_get_minor_version ()" link="libratp-barebox-Library-version.html#ratp-barebox-get-minor-version"/>
+    <keyword type="function" name="ratp_barebox_get_micro_version ()" link="libratp-barebox-Library-version.html#ratp-barebox-get-micro-version"/>
+    <keyword type="macro" name="RATP_BAREBOX_MAJOR_VERSION" link="libratp-barebox-Library-version.html#RATP-BAREBOX-MAJOR-VERSION:CAPS"/>
+    <keyword type="macro" name="RATP_BAREBOX_MINOR_VERSION" link="libratp-barebox-Library-version.html#RATP-BAREBOX-MINOR-VERSION:CAPS"/>
+    <keyword type="macro" name="RATP_BAREBOX_MICRO_VERSION" link="libratp-barebox-Library-version.html#RATP-BAREBOX-MICRO-VERSION:CAPS"/>
+    <keyword type="function" name="ratp_barebox_link_ping ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-ping"/>
+    <keyword type="function" name="ratp_barebox_link_command ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-command"/>
+    <keyword type="function" name="ratp_barebox_link_getenv ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-getenv"/>
+    <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_ERROR" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-ERROR:CAPS"/>
+    <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_WARNING" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-WARNING:CAPS"/>
+    <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_INFO" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-INFO:CAPS"/>
+    <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_DEBUG" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-DEBUG:CAPS"/>
+  </functions>
+</book>
