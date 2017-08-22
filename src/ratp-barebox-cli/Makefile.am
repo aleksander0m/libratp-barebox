@@ -6,10 +6,12 @@ ratp_barebox_cli_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/src/libratp-barebox \
 	-I$(top_builddir)/src/libratp-barebox \
+	$(LIBRATP_CFLAGS) \
 	$(NULL)
 
 ratp_barebox_cli_LDADD = \
 	$(top_builddir)/src/libratp-barebox/libratp-barebox.la \
+	$(LIBRATP_LIBS) \
 	$(NULL)
 
 ratp_barebox_cli_SOURCES = \
