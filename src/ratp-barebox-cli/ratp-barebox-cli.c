@@ -179,7 +179,7 @@ run_command (ratp_link_t *ratp,
     if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
         fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
 
-    return 0;
+    return errno_result;
 }
 
 static int
