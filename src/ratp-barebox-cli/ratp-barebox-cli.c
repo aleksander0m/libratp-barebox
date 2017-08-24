@@ -40,6 +40,8 @@
 #define PROGRAM_NAME    "ratp-barebox-cli"
 #define PROGRAM_VERSION PACKAGE_VERSION
 
+#define DEFAULT_TIMEOUT 5000
+
 /******************************************************************************/
 
 static unsigned long main_tid;
@@ -123,7 +125,9 @@ sig_handler (int signo)
 /******************************************************************************/
 
 static int
-run_ping (ratp_link_t *ratp)
+run_ping (ratp_link_t *ratp,
+          unsigned int timeout,
+          bool quiet)
 {
     ratp_status_t st;
 
@@ -132,12 +136,14 @@ run_ping (ratp_link_t *ratp)
         return -1;
     }
 
-    printf ("Sending PING...\n");
-    if ((st = ratp_barebox_link_ping (ratp, 5000)) != RATP_STATUS_OK) {
+    if (!quiet)
+        printf ("Sending PING...\n");
+    if ((st = ratp_barebox_link_ping (ratp, timeout)) != RATP_STATUS_OK) {
         fprintf (stderr, "error: couldn't send PING: %s\n", ratp_status_str (st));
         return -1;
     }
-    printf ("PONG received...\n");
+    if (!quiet)
+        printf ("PONG received...\n");
 
     if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
         fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
@@ -147,7 +153,9 @@ run_ping (ratp_link_t *ratp)
 
 static int
 run_command (ratp_link_t *ratp,
-             const char  *command)
+             const char  *command,
+             unsigned int timeout,
+             bool quiet)
 {
     ratp_status_t st;
     uint32_t      errno_result = 0;
@@ -158,23 +166,27 @@ run_command (ratp_link_t *ratp,
         return -1;
     }
 
-    printf ("Sending command: %s\n", command);
-    if ((st = ratp_barebox_link_command (ratp, 5000, command, &errno_result, &stdout_result)) != RATP_STATUS_OK) {
+    if (!quiet)
+        printf ("Sending command: %s\n", command);
+    if ((st = ratp_barebox_link_command (ratp, timeout, command, &errno_result, &stdout_result)) != RATP_STATUS_OK) {
         fprintf (stderr, "error: couldn't send command: %s\n", ratp_status_str (st));
         return -1;
     }
-    printf ("Received response (errno %s):\n", strerror (errno_result));
-    printf ("%s\n", stdout_result ? stdout_result : "");
+    if (!quiet)
+        printf ("Received response (errno %s):\n", strerror (errno_result));    
+    printf ("%s%c", stdout_result ? stdout_result : "", quiet ? '\0' : '\n');
 
     if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
         fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
 
-    return 0;
+    return errno_result;
 }
 
 static int
 run_getenv (ratp_link_t *ratp,
-            const char  *env_name)
+            const char  *env_name,
+            unsigned int timeout,
+            bool quiet)
 {
     ratp_status_t  st;
     char          *env_value = NULL;
@@ -184,12 +196,16 @@ run_getenv (ratp_link_t *ratp,
         return -1;
     }
 
-    printf ("Sending getenv request: %s\n", env_name);
-    if ((st = ratp_barebox_link_getenv (ratp, 5000, env_name, &env_value)) != RATP_STATUS_OK) {
+    if (!quiet)
+        printf ("Sending getenv request: %s\n", env_name);
+    if ((st = ratp_barebox_link_getenv (ratp, timeout, env_name, &env_value)) != RATP_STATUS_OK) {
         fprintf (stderr, "error: couldn't getenv: %s\n", ratp_status_str (st));
         return -1;
     }
-    printf ("%s: %s\n", env_name, env_value);
+    if (!quiet)
+        printf ("%s: %s\n", env_name, env_value);
+    else
+        printf ("%s", env_value);
 
     if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
         fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
@@ -219,6 +235,8 @@ print_help (void)
             "  -g, --getenv=[ENV]              Read the value of an environment variable.\n"
             "\n"
             "Common options:\n"
+            "  -T, --timeout                   Command timeout.\n"
+            "  -q, --quiet                     Display only command results.\n"
             "  -d, --debug                     Enable verbose logging.\n"
             "  -h, --help                      Show help.\n"
             "  -v, --version                   Show version.\n"
@@ -249,6 +267,7 @@ print_version (void)
 int main (int argc, char **argv)
 {
     int            idx, iarg = 0;
+    unsigned int   timeout = DEFAULT_TIMEOUT;
     char          *tty_path = NULL;
     speed_t        tty_baudrate = B0;
     char          *fifo_in_path = NULL;
@@ -257,6 +276,7 @@ int main (int argc, char **argv)
     char          *action_command = NULL;
     char          *action_getenv = NULL;
     bool           debug = false;
+    bool           quiet = false;
     unsigned int   n_actions;
     int            action_ret;
     ratp_link_t   *ratp;
@@ -270,6 +290,8 @@ int main (int argc, char **argv)
         { "ping",         no_argument,       0, 'p' },
         { "command",      required_argument, 0, 'c' },
         { "getenv",       required_argument, 0, 'g' },
+        { "timeout",      required_argument, 0, 'T' },
+        { "quiet",        no_argument,       0, 'q' },
         { "debug",        no_argument,       0, 'd' },
         { "version",      no_argument,       0, 'v' },
         { "help",         no_argument,       0, 'h' },
@@ -279,7 +301,7 @@ int main (int argc, char **argv)
     /* turn off getopt error message */
     opterr = 1;
     while (iarg != -1) {
-        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:dvh", longopts, &idx);
+        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:T:qdvh", longopts, &idx);
         switch (iarg) {
         case 'i':
             if (fifo_in_path)
@@ -327,6 +349,12 @@ int main (int argc, char **argv)
                 fprintf (stderr, "warning: -g,--getenv given multiple times\n");
             else
                 action_getenv = strdup (optarg);
+            break;
+        case 'T':
+            timeout = strtoul (optarg, NULL, 10);
+            break;
+        case 'q':
+            quiet = true;
             break;
         case 'd':
             debug = true;
@@ -399,11 +427,11 @@ int main (int argc, char **argv)
     }
 
     if (action_ping)
-        action_ret = run_ping (ratp);
+        action_ret = run_ping (ratp, timeout, quiet);
     else if (action_command)
-        action_ret = run_command (ratp, action_command);
+        action_ret = run_command (ratp, action_command, timeout, quiet);
     else if (action_getenv)
-        action_ret = run_getenv (ratp, action_getenv);
+        action_ret = run_getenv (ratp, action_getenv, timeout, quiet);
     else
         assert (0);
 
