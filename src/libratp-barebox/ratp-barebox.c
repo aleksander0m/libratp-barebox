@@ -512,6 +512,38 @@ out:
 }
 
 /******************************************************************************/
+/* Reset */
+
+struct ratp_bb_reset {
+	struct ratp_bb header;
+	uint8_t        force;
+} __attribute__((packed));
+
+ratp_status_t
+ratp_barebox_link_reset (ratp_link_t *ratp,
+                         bool         force)
+{
+
+    struct ratp_bb_reset *msg;
+    size_t                msg_size;
+    ratp_status_t         st;
+
+    msg_size = sizeof (struct ratp_bb_reset);
+    msg = (struct ratp_bb_reset *) calloc (msg_size, 1);
+    if (!msg)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    msg->header.type  = htobe16 (BB_RATP_TYPE_RESET);
+    msg->header.flags = 0;
+    msg->force = (uint8_t) force;
+
+    st = ratp_link_send (ratp, 0, (const uint8_t *) msg, msg_size, NULL, NULL);
+
+    free (msg);
+    return st;
+}
+
+/******************************************************************************/
 /* Library logging */
 
 static ratp_barebox_log_handler_t default_handler = NULL;
