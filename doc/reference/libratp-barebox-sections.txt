@@ -26,4 +26,5 @@ ratp_barebox_link_command
 ratp_barebox_link_getenv
 ratp_barebox_link_md
 ratp_barebox_link_mw
+ratp_barebox_link_reset
 </SECTION>
