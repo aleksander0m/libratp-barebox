@@ -8,6 +8,7 @@
 #define BB_RATP_TYPE_PING               2
 #define BB_RATP_TYPE_GETENV             3
 #define BB_RATP_TYPE_FS                 4
+#define BB_RATP_TYPE_RESET              5
 
 #define BB_RATP_FLAG_NONE               0
 #define BB_RATP_FLAG_RESPONSE           (1 << 0) /* Packet is a response */
