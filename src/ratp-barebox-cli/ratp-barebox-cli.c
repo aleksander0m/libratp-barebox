@@ -468,6 +468,29 @@ out:
     return ret;
 }
 
+static int
+run_reset (ratp_link_t *ratp,
+           bool         force,
+           bool         quiet)
+{
+    ratp_status_t st;
+
+    if ((st = ratp_link_active_open_sync (ratp, 5000)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't actively open link: %s\n", ratp_status_str (st));
+        return -1;
+    }
+
+    if ((st = ratp_barebox_link_reset (ratp, force)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't reset: %s\n", ratp_status_str (st));
+        return -1;
+    }
+
+    if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
+        fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
+
+    return 0;
+}
+
 /******************************************************************************/
 
 static void
@@ -490,6 +513,8 @@ print_help (void)
             "  -g, --getenv=[ENV]              Read the value of an environment variable.\n"
             "  -m, --md=[PATH,0xADDR,SIZE]     Memory dump SIZE bytes from file PATH at ADDR .\n"
             "  -m, --mw=[PATH,0xADDR,DATA]     Memory write DATA to file PATH at ADDR.\n"
+            "  -r, --reset                     Request reset.\n"
+            "  -R, --force-reset               Request forced reset.\n"
             "\n"
             "Common options:\n"
             "  -T, --timeout=[TIMEOUT]         Command timeout (seconds).\n"
@@ -539,6 +564,8 @@ int main (int argc, char **argv)
     char          *action_getenv = NULL;
     char          *action_md = NULL;
     char          *action_mw = NULL;
+    bool           action_reset = NULL;
+    bool           action_force_reset = NULL;
     bool           debug = false;
     bool           quiet = false;
     unsigned int   n_actions;
@@ -556,6 +583,8 @@ int main (int argc, char **argv)
         { "getenv",       required_argument, 0, 'g' },
         { "md",           required_argument, 0, 'm' },
         { "mw",           required_argument, 0, 'w' },
+        { "reset",        no_argument,       0, 'r' },
+        { "force-reset",  no_argument,       0, 'R' },
         { "timeout",      required_argument, 0, 'T' },
         { "quiet",        no_argument,       0, 'q' },
         { "debug",        no_argument,       0, 'd' },
@@ -567,7 +596,7 @@ int main (int argc, char **argv)
     /* turn off getopt error message */
     opterr = 1;
     while (iarg != -1) {
-        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:m:w:T:qdvh", longopts, &idx);
+        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:m:w:rRT:qdvh", longopts, &idx);
         switch (iarg) {
         case 'i':
             if (fifo_in_path)
@@ -628,6 +657,12 @@ int main (int argc, char **argv)
             else
                 action_mw = strdup (optarg);
             break;
+        case 'r':
+            action_reset = true;
+            break;
+        case 'R':
+            action_force_reset = true;
+            break;
         case 'T':
             timeout = strtoul (optarg, NULL, 10);
             break;
@@ -651,8 +686,9 @@ int main (int argc, char **argv)
                  !!action_command +
                  !!action_getenv +
                  !!action_md +
-                 !!action_mw);
-
+                 !!action_mw +
+                 action_reset +
+                 action_force_reset);
     if (n_actions > 1) {
         fprintf (stderr, "error: too many actions requested\n");
         return -1;
@@ -719,6 +755,10 @@ int main (int argc, char **argv)
         action_ret = run_md (ratp, action_md, timeout, quiet);
     else if (action_mw)
         action_ret = run_mw (ratp, action_mw, timeout, quiet);
+    else if (action_reset)
+        action_ret = run_reset (ratp, false, quiet);
+    else if (action_force_reset)
+        action_ret = run_reset (ratp, true, quiet);
     else
         assert (0);
 
