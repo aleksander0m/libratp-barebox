@@ -58,6 +58,7 @@ operation_receive_ready (ratp_link_t   *self,
     struct operation_context_s *ctx;
     struct ratp_bb             *rsp_msg;
     uint16_t                    msg_type;
+    uint16_t                    msg_flags;
 
     ctx = (struct operation_context_s *) user_data;
     rsp_msg = (struct ratp_bb *) buffer;
@@ -69,11 +70,18 @@ operation_receive_ready (ratp_link_t   *self,
     }
 
     msg_type = be16toh (rsp_msg->type);
+    msg_flags = be16toh (rsp_msg->flags);
 
-    if (msg_type == BB_RATP_TYPE_CONSOLEMSG) {
+    if (msg_flags & BB_RATP_FLAG_INDICATION) {
         size_t  console_message_size;
         size_t  new_stdout_size;
         char   *aux;
+
+        /* Only console indications supported for now */
+        if (msg_type != BB_RATP_TYPE_CONSOLE) {
+            ratp_barebox_debug ("ignoring unsupported indication (%hu)", msg_type);
+            return;
+        }
 
         console_message_size = buffer_size - sizeof (struct ratp_bb);
         if (!console_message_size)
@@ -97,8 +105,14 @@ operation_receive_ready (ratp_link_t   *self,
         return;
     }
 
+    /* We don't support receiving requests here */
+    if (!(msg_flags & BB_RATP_FLAG_RESPONSE)) {
+        ratp_barebox_debug ("ignoring unsupported request (%hu)", msg_type);
+        return;
+    }
+
     if (msg_type != ctx->expected_rsp_type) {
-        ratp_barebox_debug ("ignoring unexpected message (%hu != %hu)",
+        ratp_barebox_debug ("ignoring unexpected response (%hu != %hu)",
                             msg_type, ctx->expected_rsp_type);
         return;
     }
@@ -121,7 +135,6 @@ operation_receive_ready (ratp_link_t   *self,
 static ratp_status_t
 operation (ratp_link_t    *ratp,
            unsigned long   timeout_ms,
-           uint16_t        expected_rsp_type,
            const uint8_t  *msg,
            size_t          msg_size,
            char          **stdout,
@@ -134,7 +147,7 @@ operation (ratp_link_t    *ratp,
 
     pthread_mutex_init (&ctx.sync_lock, NULL);
     pthread_cond_init  (&ctx.sync_cond, NULL);
-    ctx.expected_rsp_type = expected_rsp_type;
+    ctx.expected_rsp_type = be16toh (((struct ratp_bb *)msg)->type);
     ctx.propagate_rsp = (rsp && rsp_size);
     ctx.propagate_stdout = !!stdout;
 
@@ -193,7 +206,6 @@ ratp_barebox_link_ping (ratp_link_t   *ratp,
 
     return operation (ratp,
                       timeout_ms,
-                      BB_RATP_TYPE_PONG,
                       (const uint8_t *) &msg, sizeof (msg),
                       NULL, NULL, NULL);
 }
@@ -223,13 +235,12 @@ ratp_barebox_link_command (ratp_link_t    *ratp,
     if (!msg)
         return RATP_STATUS_ERROR_NO_MEMORY;
 
-    msg->type  = htobe16 (BB_RATP_TYPE_COMMAND);
+    msg->type  = htobe16 (BB_RATP_TYPE_CONSOLE);
     msg->flags = 0;
     memcpy (msg->data, command, command_len);
 
     if ((st = operation (ratp,
                          timeout_ms,
-                         BB_RATP_TYPE_COMMAND_RETURN,
                          (const uint8_t *) msg, msg_size,
                          out_stdout_result,
                          &response, &response_size)) != RATP_STATUS_OK)
@@ -286,7 +297,6 @@ ratp_barebox_link_getenv (ratp_link_t    *ratp,
 
     if ((st = operation (ratp,
                          timeout_ms,
-                         BB_RATP_TYPE_GETENV_RETURN,
                          (const uint8_t *) msg, msg_size,
                          NULL,
                          &response, &response_size)) != RATP_STATUS_OK)

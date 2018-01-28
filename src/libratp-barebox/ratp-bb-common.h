@@ -3,15 +3,15 @@
 
 #include <stdint.h>
 
-#define BB_RATP_TYPE_COMMAND            1
-#define BB_RATP_TYPE_COMMAND_RETURN     2
-#define BB_RATP_TYPE_CONSOLEMSG         3
-#define BB_RATP_TYPE_PING               4
-#define BB_RATP_TYPE_PONG               5
-#define BB_RATP_TYPE_GETENV             6
-#define BB_RATP_TYPE_GETENV_RETURN      7
-#define BB_RATP_TYPE_FS                 8
-#define BB_RATP_TYPE_FS_RETURN          9
+
+#define BB_RATP_TYPE_CONSOLE            1
+#define BB_RATP_TYPE_PING               2
+#define BB_RATP_TYPE_GETENV             3
+#define BB_RATP_TYPE_FS                 4
+
+#define BB_RATP_FLAG_NONE               0
+#define BB_RATP_FLAG_RESPONSE           (1 << 0) /* Packet is a response */
+#define BB_RATP_FLAG_INDICATION         (1 << 1) /* Packet is an indication */
 
 struct ratp_bb {
   uint16_t type;
