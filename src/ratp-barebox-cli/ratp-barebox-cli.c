@@ -435,6 +435,9 @@ int main (int argc, char **argv)
     else
         assert (0);
 
+    free (action_getenv);
+    free (action_command);
+
     ratp_link_shutdown (ratp);
     ratp_link_free (ratp);
     return action_ret;
