@@ -256,7 +256,8 @@ print_help (void)
             "  -p, --ping                      PING barebox.\n"
             "  -c, --command=[COMMAND]         Run a command in barebox.\n"
             "  -g, --getenv=[ENV]              Read the value of an environment variable.\n"
-            "  -r, --reset                     Reset barebox.\n"
+            "  -r, --reset                     Request reset.\n"
+            "  -R, --force-reset               Request forced reset.\n"
             "\n"
             "Common options:\n"
             "  -T, --timeout=[TIMEOUT]         Command timeout (seconds).\n"
@@ -301,6 +302,7 @@ int main (int argc, char **argv)
     char          *action_command = NULL;
     char          *action_getenv = NULL;
     bool           action_reset = NULL;
+    bool           action_force_reset = NULL;
     bool           debug = false;
     bool           quiet = false;
     unsigned int   n_actions;
@@ -317,6 +319,7 @@ int main (int argc, char **argv)
         { "command",      required_argument, 0, 'c' },
         { "getenv",       required_argument, 0, 'g' },
         { "reset",        no_argument,       0, 'r' },
+        { "force-reset",  no_argument,       0, 'R' },
         { "timeout",      required_argument, 0, 'T' },
         { "quiet",        no_argument,       0, 'q' },
         { "debug",        no_argument,       0, 'd' },
@@ -328,7 +331,7 @@ int main (int argc, char **argv)
     /* turn off getopt error message */
     opterr = 1;
     while (iarg != -1) {
-        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:rT:qdvh", longopts, &idx);
+        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:rRT:qdvh", longopts, &idx);
         switch (iarg) {
         case 'i':
             if (fifo_in_path)
@@ -380,6 +383,9 @@ int main (int argc, char **argv)
         case 'r':
             action_reset = true;
             break;
+        case 'R':
+            action_force_reset = true;
+            break;
         case 'T':
             timeout = strtoul (optarg, NULL, 10);
             break;
@@ -399,7 +405,7 @@ int main (int argc, char **argv)
     }
 
     /* Validate actions */
-    n_actions = (action_ping + !!action_command + !!action_getenv + action_reset);
+    n_actions = (action_ping + !!action_command + !!action_getenv + action_reset + action_force_reset);
     if (n_actions > 1) {
         fprintf (stderr, "error: too many actions requested\n");
         return -1;
@@ -463,7 +469,9 @@ int main (int argc, char **argv)
     else if (action_getenv)
         action_ret = run_getenv (ratp, action_getenv, timeout, quiet);
     else if (action_reset)
-        action_ret = run_reset (ratp, false, quiet); /* TODO: allow force */
+        action_ret = run_reset (ratp, false, quiet);
+    else if (action_force_reset)
+        action_ret = run_reset (ratp, true, quiet);
     else
         assert (0);
 
