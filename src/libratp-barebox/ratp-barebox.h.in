@@ -92,6 +92,58 @@ ratp_status_t ratp_barebox_link_getenv (ratp_link_t    *ratp,
 ratp_status_t ratp_barebox_link_reset (ratp_link_t *ratp,
                                        bool         force);
 
+/**
+ * ratp_barebox_link_md:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @path: path to the display file, or %NULL for the default.
+ * @addr: address where to start reading from.
+ * @size: amount of bytes to read.
+ * @out: output location to store the data read.
+ * @out_size: size of the data read in @out.
+ *
+ * Memory display.
+ *
+ * Reads @size bytes of memory from the file at @path, starting at @addr.
+ * If %RATP_STATUS_OK is returned, @out and @out_size will be set.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_md (ratp_link_t    *ratp,
+                                    unsigned long   timeout_ms,
+                                    const char     *path,
+                                    uint16_t        addr,
+                                    uint16_t        size,
+                                    uint8_t       **out,
+                                    uint16_t       *out_size);
+
+/**
+ * ratp_barebox_link_mw:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @path: path to the display file, or %NULL for the default.
+ * @addr: address where to start writing to.
+ * @data: data to write.
+ * @data_size: amount of bytes to write.
+ * @out_written: number of bytes successfully written.
+ *
+ * Memory write.
+ *
+ * Writes @data_size bytes into the display file at @path, starting at @addr.
+ * If %RATP_STATUS_OK is returned, @out_written will be set.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_mw (ratp_link_t    *ratp,
+                                    unsigned long   timeout_ms,
+                                    const char     *path,
+                                    uint16_t        addr,
+                                    const uint8_t  *data,
+                                    uint16_t        data_size,
+                                    uint16_t       *out_written);
+
 /******************************************************************************/
 
 /**
