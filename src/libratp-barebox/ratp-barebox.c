@@ -314,6 +314,204 @@ out:
 }
 
 /******************************************************************************/
+/* Memory dump */
+
+ratp_status_t
+ratp_barebox_link_md (ratp_link_t    *ratp,
+                      unsigned long   timeout_ms,
+                      const char     *path,
+                      uint16_t        addr,
+                      uint16_t        size,
+                      uint8_t       **out_data,
+                      uint16_t       *out_data_size)
+{
+    struct ratp_bb_md_request  *req_md = NULL;
+    size_t                      req_size;
+    uint8_t                    *rsp = NULL;
+    struct ratp_bb_md_response *rsp_md;
+    uint32_t                    rsp_errno;
+    uint8_t                    *rsp_buffer;
+    uint16_t                    rsp_buffer_offset;
+    uint16_t                    rsp_buffer_size;
+    size_t                      rsp_size;
+    size_t                      path_size;
+    uint16_t                    data_offset;
+    uint16_t                    data_size;
+    ratp_status_t               st;
+
+    if (!path) {
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    path_size = strlen (path);
+    req_size = sizeof (struct ratp_bb_md_request) + path_size;
+
+    req_md = (struct ratp_bb_md_request *) calloc (req_size, 1);
+    if (!req_md)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    req_md->header.type  = htobe16 (BB_RATP_TYPE_MD);
+    req_md->header.flags = 0;
+    req_md->buffer_offset = htobe16 (sizeof (struct ratp_bb_md_request));
+    req_md->addr = htobe16 (addr);
+    req_md->size = htobe16 (size);
+    req_md->path_size = htobe16 (path_size);
+    req_md->path_offset = 0;
+    memcpy (req_md->buffer, path, path_size);
+
+    if ((st = operation (ratp,
+                         timeout_ms,
+                         BB_RATP_TYPE_MD_RETURN,
+                         (const uint8_t *) req_md, req_size,
+                         NULL,
+                         &rsp, &rsp_size)) != RATP_STATUS_OK)
+        goto out;
+
+    if (rsp_size < (sizeof (struct ratp_bb_md_response))) {
+        ratp_barebox_warning ("unexpected response size (%zu < %zu)",
+                              rsp_size, sizeof (struct ratp_bb_md_response));
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    rsp_md = (struct ratp_bb_md_response *) rsp;
+
+    /* Check errno */
+    rsp_errno = be32toh (rsp_md->errno_v);
+    if (rsp_errno != 0) {
+        /* TODO: more errno-specific return here better */
+        ratp_barebox_warning ("operation failed with error: %d", rsp_errno);
+        st = RATP_STATUS_ERROR;
+        goto out;
+    }
+
+    /* Validate buffer */
+    rsp_buffer_offset = be16toh (rsp_md->buffer_offset);
+    if (rsp_buffer_offset > rsp_size) {
+        ratp_barebox_warning ("invalid buffer offset received (%hu > %zu)",
+                              rsp_buffer_offset, rsp_size);
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+    rsp_buffer_size = rsp_size - rsp_buffer_offset;
+    rsp_buffer = (uint8_t *)rsp + rsp_buffer_offset;
+
+    /* Validate data */
+    data_offset = be16toh (rsp_md->data_offset);
+    if (data_offset != 0) {
+        ratp_barebox_warning ("invalid data offset received");
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+    data_size = be16toh (rsp_md->data_size);
+    if (rsp_buffer_size < data_size) {
+        ratp_barebox_warning ("unexpected response size (%hu < %hu): missing data",
+                              rsp_buffer_size, data_size);
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    st = RATP_STATUS_OK;
+
+    if (out_data_size)
+        *out_data_size = data_size;
+    if (out_data) {
+        *out_data = malloc (data_size);
+        if (!*out_data)
+            st = RATP_STATUS_ERROR_NO_MEMORY;
+        else
+            memcpy (*out_data, &rsp_buffer[data_offset], data_size);
+    }
+
+out:
+    free (rsp);
+    free (req_md);
+    return st;
+}
+
+/******************************************************************************/
+/* Memory write */
+
+ratp_status_t
+ratp_barebox_link_mw (ratp_link_t    *ratp,
+                      unsigned long   timeout_ms,
+                      const char     *path,
+                      uint16_t        addr,
+                      const uint8_t  *data,
+                      uint16_t        data_size,
+                      uint16_t       *out_written)
+{
+    struct ratp_bb_mw_request  *req_mw = NULL;
+    size_t                      req_size;
+    uint8_t                    *rsp = NULL;
+    struct ratp_bb_mw_response *rsp_mw;
+    uint32_t                    rsp_errno;
+    size_t                      rsp_size;
+    size_t                      path_size;
+    ratp_status_t               st;
+
+    if (!path) {
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    path_size = strlen (path);
+    req_size = sizeof (struct ratp_bb_mw_request) + path_size + data_size;
+
+    req_mw = (struct ratp_bb_mw_request *) calloc (req_size, 1);
+    if (!req_mw)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    req_mw->header.type  = htobe16 (BB_RATP_TYPE_MW);
+    req_mw->header.flags = 0;
+    req_mw->buffer_offset = htobe16 (sizeof (struct ratp_bb_mw_request));
+    req_mw->addr = htobe16 (addr);
+    req_mw->path_size = htobe16 (path_size);
+    req_mw->path_offset = 0;
+    memcpy (req_mw->buffer, path, path_size);
+    req_mw->data_size = htobe16(data_size);
+    req_mw->data_offset = req_mw->path_size;
+    memcpy (&req_mw->buffer[path_size], data, data_size);
+
+    if ((st = operation (ratp,
+                         timeout_ms,
+                         BB_RATP_TYPE_MW_RETURN,
+                         (const uint8_t *) req_mw, req_size,
+                         NULL,
+                         &rsp, &rsp_size)) != RATP_STATUS_OK)
+        goto out;
+
+    if (rsp_size < (sizeof (struct ratp_bb_mw_response))) {
+        ratp_barebox_warning ("unexpected response size (%zu < %zu)",
+                              rsp_size, sizeof (struct ratp_bb_mw_response));
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    rsp_mw = (struct ratp_bb_mw_response *) rsp;
+
+    /* Check errno */
+    rsp_errno = be32toh (rsp_mw->errno_v);
+    if (rsp_errno != 0) {
+        /* TODO: more errno-specific return here better */
+        ratp_barebox_warning ("operation failed with error: %d", rsp_errno);
+        st = RATP_STATUS_ERROR;
+        goto out;
+    }
+
+    st = RATP_STATUS_OK;
+
+    if (out_written)
+        *out_written = be16toh (rsp_mw->written);
+
+out:
+    free (rsp);
+    free (req_mw);
+    return st;
+}
+
+/******************************************************************************/
 /* Library logging */
 
 static ratp_barebox_log_handler_t default_handler = NULL;

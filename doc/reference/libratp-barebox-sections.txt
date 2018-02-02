@@ -24,4 +24,6 @@ ratp_barebox_get_micro_version
 ratp_barebox_link_ping
 ratp_barebox_link_command
 ratp_barebox_link_getenv
+ratp_barebox_link_md
+ratp_barebox_link_mw
 </SECTION>
