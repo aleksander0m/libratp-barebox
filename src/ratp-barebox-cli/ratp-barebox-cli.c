@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <getopt.h>
 #include <unistd.h>
 #include <signal.h>
@@ -69,6 +70,93 @@ ratp_barebox_log_handler (ratp_barebox_log_level_t  level,
                           const char               *message)
 {
     printf ("%.6lf [ratp %015lu] %s: %s\n", current_timestamp (), tid == main_tid ? 0 : tid, ratp_barebox_log_level_str (level), message);
+}
+
+static char *
+strhex (const void *mem,
+        size_t      size,
+        const char *delimiter)
+{
+    const uint8_t *data = mem;
+    size_t         i, j, new_str_length, delimiter_length;
+    char          *new_str;
+
+    assert (size > 0);
+
+    /* Allow delimiters of arbitrary sizes, including 0 */
+    delimiter_length = (delimiter ? strlen (delimiter) : 0);
+
+    /* Get new string length. If input string has N bytes, we need:
+     * - 1 byte for last NUL char
+     * - 2N bytes for hexadecimal char representation of each byte...
+     * - N-1 times the delimiter length
+     * So... e.g. if delimiter is 1 byte,  a total of:
+     *   (1+2N+N-1) = 3N bytes are needed...
+     */
+    new_str_length =  1 + (2 * size) + ((size - 1) * delimiter_length);
+
+    /* Allocate memory for new array and initialize contents to NUL */
+    new_str = calloc (new_str_length, 1);
+
+    /* Print hexadecimal representation of each byte... */
+    for (i = 0, j = 0; i < size; i++, j += (2 + delimiter_length)) {
+        /* Print character in output string... */
+        snprintf (&new_str[j], 3, "%02x", data[i]);
+        /* And if needed, add separator */
+        if (delimiter_length && i != (size - 1) )
+            strncpy (&new_str[j + 2], delimiter, delimiter_length);
+    }
+
+    /* Set output string */
+    return new_str;
+}
+
+static uint8_t *
+hexstr (const char *str,
+        const char *delimiter,
+        size_t     *out_size)
+{
+    char byte[3] = { 0x00, 0x00, 0x00 };
+    uint8_t *data;
+    size_t i, j, delimiter_length, str_length, data_size, byte_length;
+
+    str_length = strlen (str);
+
+    /* Allow delimiters of arbitrary sizes, including 0 */
+    delimiter_length = (delimiter ? strlen (delimiter) : 0);
+
+    /* 1 byte is represented by 2 hex digits plus a delimiter afterwards, except
+     * for the last byte which doesn't have delimiter */
+    byte_length = 2 + delimiter_length;
+
+    /* Be a bit strict about the input format for now */
+    if (((str_length + delimiter_length) % byte_length) != 0)
+        return NULL;
+
+    data_size = (str_length + delimiter_length) / (byte_length);
+    data = calloc (data_size, 1);
+
+    for (i = 0, j = 0; i < data_size; i++, j += (2 + delimiter_length)) {
+        /* 2 hex digits */
+        if (!isxdigit (str[j]) || !isxdigit (str[j + 1]))
+            break;
+        /* and a delimiter except for the last one */
+        if ((i < (data_size - 1)) && delimiter_length && (strncmp (&str[j + 2], delimiter, delimiter_length) != 0))
+            break;
+
+        byte[0] = str[j];
+        byte[1] = str[j + 1];
+
+        data[i] = (uint8_t) strtoul (byte, NULL, 16);
+    }
+
+    if (i != data_size) {
+        free (data);
+        return NULL;
+    }
+
+    *out_size = data_size;
+    return data;
 }
 
 /******************************************************************************/
@@ -213,6 +301,173 @@ run_getenv (ratp_link_t *ratp,
     return 0;
 }
 
+static int
+run_md (ratp_link_t  *ratp,
+        const char   *action_args,
+        unsigned int  timeout,
+        bool          quiet)
+{
+    ratp_status_t  st;
+    uint8_t       *out = NULL;
+    uint16_t       out_size = 0;
+    char          *out_hex = NULL;
+    int            ret = -1;
+    char          *aux, *aux1, *aux2;
+    const char    *path;
+    unsigned int   start;
+    unsigned int   size;
+
+    aux = strdup (action_args);
+    if (!aux)
+        goto out;
+
+    aux1 = strchr (aux, ',');
+    if (!aux1) {
+        fprintf (stderr, "error: only one field given in --md arguments\n");
+        goto out;
+    }
+    *aux1 = '\0';
+    aux1++;
+
+    aux2 = strchr (aux1, ',');
+    if (!aux2) {
+        fprintf (stderr, "error: only two fields given in --md arguments\n");
+        goto out;
+    }
+    *aux2 = '\0';
+    aux2++;
+
+    path = aux;
+    if (!path[0]) {
+        fprintf (stderr, "error: empty memory device file path given\n");
+        goto out;
+    }
+
+    start = strtoul (aux1, NULL, 16);
+
+    size = strtoul (aux2, NULL, 10);
+    if (!size) {
+        fprintf (stderr, "error: no size requested\n");
+        goto out;
+    }
+
+    if ((st = ratp_link_active_open_sync (ratp, 5000)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't actively open link: %s\n", ratp_status_str (st));
+        goto out;
+    }
+
+    if (!quiet)
+        printf ("Sending md request: read '%s': 0x%04x (+%u bytes)\n", path, start, size);
+    if ((st = ratp_barebox_link_md (ratp, timeout, path, start, size, &out, &out_size)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't md: %s\n", ratp_status_str (st));
+        ret = -1;
+        goto out_close;
+    }
+
+    out_hex = strhex (out, out_size, ":");
+    if (!out_hex) {
+        fprintf (stderr, "error: couldn't hex print returned contents\n");
+        ret = -2;
+        goto out_close;
+    }
+    printf ("%s\n", out_hex);
+    ret = 0;
+
+out_close:
+
+    if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
+        fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
+
+out:
+    free (out);
+    free (out_hex);
+    free (aux);
+
+    return ret;
+}
+
+static int
+run_mw (ratp_link_t  *ratp,
+        const char   *action_args,
+        unsigned int  timeout,
+        bool          quiet)
+{
+    ratp_status_t  st;
+    uint8_t       *data = NULL;
+    size_t         data_size = 0;
+    int            ret = -1;
+    char          *aux, *aux1, *aux2;
+    const char    *path;
+    unsigned int   addr;
+    uint16_t       written;
+
+    aux = strdup (action_args);
+    if (!aux)
+        goto out;
+
+    aux1 = strchr (aux, ',');
+    if (!aux1) {
+        fprintf (stderr, "error: only one field given in --mw arguments\n");
+        goto out;
+    }
+    *aux1 = '\0';
+    aux1++;
+
+    aux2 = strchr (aux1, ',');
+    if (!aux2) {
+        fprintf (stderr, "error: only two fields given in --md arguments\n");
+        goto out;
+    }
+    *aux2 = '\0';
+    aux2++;
+
+    path = aux;
+    if (!path[0]) {
+        fprintf (stderr, "error: empty memory device file path given\n");
+        goto out;
+    }
+
+    addr = strtoul (aux1, NULL, 16);
+
+    data = hexstr (aux2, ":", &data_size);
+    if (!data) {
+        fprintf (stderr, "error: couldn't process input data\n");
+        goto out;
+    }
+
+    if (data_size > 0xFFFF) {
+        fprintf (stderr, "error: too much data\n");
+        goto out;
+    }
+
+    if ((st = ratp_link_active_open_sync (ratp, 5000)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't actively open link: %s\n", ratp_status_str (st));
+        goto out;
+    }
+
+    if (!quiet)
+        printf ("Sending mw request: write '%s': 0x%04x (+%zu bytes)\n", path, addr, data_size);
+    if ((st = ratp_barebox_link_mw (ratp, timeout, path, addr, data, (uint16_t) data_size, &written)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't mw: %s\n", ratp_status_str (st));
+        ret = -1;
+        goto out_close;
+    }
+
+    printf ("%hu/%zu bytes written\n", written, data_size);
+    ret = 0;
+
+out_close:
+
+    if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
+        fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
+
+out:
+    free (data);
+    free (aux);
+
+    return ret;
+}
+
 /******************************************************************************/
 
 static void
@@ -233,6 +488,8 @@ print_help (void)
             "  -p, --ping                      PING barebox.\n"
             "  -c, --command=[COMMAND]         Run a command in barebox.\n"
             "  -g, --getenv=[ENV]              Read the value of an environment variable.\n"
+            "  -m, --md=[PATH,0xADDR,SIZE]     Memory dump SIZE bytes from file PATH at ADDR .\n"
+            "  -m, --mw=[PATH,0xADDR,DATA]     Memory write DATA to file PATH at ADDR.\n"
             "\n"
             "Common options:\n"
             "  -T, --timeout=[TIMEOUT]         Command timeout (seconds).\n"
@@ -247,6 +504,10 @@ print_help (void)
             "     9600, 19200, 38400, 57600, 115200 (default), 230400, 460800,\n"
             "     500000, 576000, 921600, 1000000, 1152000, 1500000, 2000000,\n"
             "     2500000, 3000000, 3500000 or 4000000.\n"
+            " * [ADDR] is an address, given in hexadecimal format.\n"
+            " * [SIZE] is given in decimal format.\n"
+            " * [DATA] is given in hex with 2 digits per byte and ':' as separator,\n"
+            "     e.g.: '00:11:22:33'.\n"
             " * The MDL is 255 by default as that is what barebox expects.\n"
             "\n");
 }
@@ -258,8 +519,8 @@ print_version (void)
             PROGRAM_NAME " " PROGRAM_VERSION "\n"
             "  running with libratp %u.%u.%u and libratp-barebox %u.%u.%u\n"
             "\n"
-            "Copyright (2017) Zodiac Inflight Innovations\n"
-            "Copyright (2017) Aleksander Morgado\n"
+            "Copyright (2017-2018) Zodiac Inflight Innovations\n"
+            "Copyright (2017-2018) Aleksander Morgado\n"
             "\n",
             ratp_get_major_version (), ratp_get_minor_version (), ratp_get_micro_version (),
             ratp_barebox_get_major_version (), ratp_barebox_get_minor_version (), ratp_barebox_get_micro_version ());
@@ -276,6 +537,8 @@ int main (int argc, char **argv)
     bool           action_ping = false;
     char          *action_command = NULL;
     char          *action_getenv = NULL;
+    char          *action_md = NULL;
+    char          *action_mw = NULL;
     bool           debug = false;
     bool           quiet = false;
     unsigned int   n_actions;
@@ -291,6 +554,8 @@ int main (int argc, char **argv)
         { "ping",         no_argument,       0, 'p' },
         { "command",      required_argument, 0, 'c' },
         { "getenv",       required_argument, 0, 'g' },
+        { "md",           required_argument, 0, 'm' },
+        { "mw",           required_argument, 0, 'w' },
         { "timeout",      required_argument, 0, 'T' },
         { "quiet",        no_argument,       0, 'q' },
         { "debug",        no_argument,       0, 'd' },
@@ -302,7 +567,7 @@ int main (int argc, char **argv)
     /* turn off getopt error message */
     opterr = 1;
     while (iarg != -1) {
-        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:T:qdvh", longopts, &idx);
+        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:m:w:T:qdvh", longopts, &idx);
         switch (iarg) {
         case 'i':
             if (fifo_in_path)
@@ -351,6 +616,18 @@ int main (int argc, char **argv)
             else
                 action_getenv = strdup (optarg);
             break;
+        case 'm':
+            if (action_md)
+                fprintf (stderr, "warning: -m,--md given multiple times\n");
+            else
+                action_md = strdup (optarg);
+            break;
+        case 'w':
+            if (action_mw)
+                fprintf (stderr, "warning: -w,--mw given multiple times\n");
+            else
+                action_mw = strdup (optarg);
+            break;
         case 'T':
             timeout = strtoul (optarg, NULL, 10);
             break;
@@ -370,7 +647,12 @@ int main (int argc, char **argv)
     }
 
     /* Validate actions */
-    n_actions = (action_ping + !!action_command + !!action_getenv);
+    n_actions = (action_ping +
+                 !!action_command +
+                 !!action_getenv +
+                 !!action_md +
+                 !!action_mw);
+
     if (n_actions > 1) {
         fprintf (stderr, "error: too many actions requested\n");
         return -1;
@@ -433,9 +715,15 @@ int main (int argc, char **argv)
         action_ret = run_command (ratp, action_command, timeout, quiet);
     else if (action_getenv)
         action_ret = run_getenv (ratp, action_getenv, timeout, quiet);
+    else if (action_md)
+        action_ret = run_md (ratp, action_md, timeout, quiet);
+    else if (action_mw)
+        action_ret = run_mw (ratp, action_mw, timeout, quiet);
     else
         assert (0);
 
+    free (action_mw);
+    free (action_md);
     free (action_getenv);
     free (action_command);
 
