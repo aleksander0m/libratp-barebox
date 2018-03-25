@@ -27,6 +27,9 @@
     <keyword type="function" name="ratp_barebox_link_ping ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-ping"/>
     <keyword type="function" name="ratp_barebox_link_command ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-command"/>
     <keyword type="function" name="ratp_barebox_link_getenv ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-getenv"/>
+    <keyword type="function" name="ratp_barebox_link_md ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-md"/>
+    <keyword type="function" name="ratp_barebox_link_mw ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-mw"/>
+    <keyword type="function" name="ratp_barebox_link_reset ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-reset"/>
     <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_ERROR" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-ERROR:CAPS"/>
     <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_WARNING" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-WARNING:CAPS"/>
     <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_INFO" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-INFO:CAPS"/>
