@@ -17,6 +17,9 @@
 #define BB_RATP_TYPE_MW                 12
 #define BB_RATP_TYPE_MW_RETURN          13
 #define BB_RATP_TYPE_RESET              14
+#define BB_RATP_TYPE_MEMTEST            15
+#define BB_RATP_TYPE_MEMTEST_RETURN     16
+#define BB_RATP_TYPE_MEMTEST_PROGRESS   17
 
 struct ratp_bb {
   uint16_t type;
@@ -75,6 +78,38 @@ struct ratp_bb_mw_response {
 	uint16_t buffer_offset;
 	uint32_t errno_v;
 	uint16_t written;
+	uint8_t  buffer[];
+} __attribute__((packed));
+
+struct ratp_bb_memtest_request {
+	struct ratp_bb header;
+	uint16_t buffer_offset;
+	uint8_t  cached;
+	uint8_t  uncached;
+	uint8_t  bus_only;
+	uint8_t  thorough;
+	uint8_t  buffer[];
+} __attribute__((packed));
+
+struct ratp_bb_memtest_progress {
+	struct ratp_bb header;
+	uint16_t buffer_offset;
+	uint16_t step_description_size;
+	uint16_t step_description_offset;
+	uint64_t progress_offset;
+	uint64_t progress_max;
+	uint8_t  buffer[];
+} __attribute__((packed));
+
+struct ratp_bb_memtest_response {
+	struct ratp_bb header;
+	uint16_t buffer_offset;
+	uint32_t v_errno;
+	uint16_t error_description_size;
+	uint16_t error_description_offset;
+	uint64_t expected_value;
+	uint64_t actual_value;
+	uint64_t address;
 	uint8_t  buffer[];
 } __attribute__((packed));
 

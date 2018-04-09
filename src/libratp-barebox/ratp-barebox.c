@@ -37,14 +37,25 @@ static void ratp_barebox_log (ratp_barebox_log_level_t  level,
 /******************************************************************************/
 /* Common operation context */
 
+typedef void (* operation_context_progress_func) (ratp_link_t   *ratp,
+                                                  const uint8_t *msg,
+                                                  size_t         msg_size,
+                                                  void          *user_data);
+
 struct operation_context_s {
     uint16_t         expected_rsp_type;
     bool             propagate_rsp;
     uint8_t         *rsp;
     size_t           rsp_size;
+
     bool             propagate_stdout;
     char            *stdout;
     size_t           stdout_size;
+
+    uint16_t                         expected_progress_type;
+    operation_context_progress_func  progress_func;
+    void                            *progress_user_data;
+
     pthread_mutex_t  sync_lock;
     pthread_cond_t   sync_cond;
 };
@@ -97,6 +108,13 @@ operation_receive_ready (ratp_link_t   *self,
         return;
     }
 
+    if (msg_type == ctx->expected_progress_type) {
+        ratp_barebox_debug ("progress reported");
+        if (ctx->progress_func)
+            ctx->progress_func (self, buffer, buffer_size, ctx->progress_user_data);
+        return;
+    }
+
     if (msg_type != ctx->expected_rsp_type) {
         ratp_barebox_debug ("ignoring unexpected message (%hu != %hu)",
                             msg_type, ctx->expected_rsp_type);
@@ -124,6 +142,9 @@ operation (ratp_link_t    *ratp,
            uint16_t        expected_rsp_type,
            const uint8_t  *msg,
            size_t          msg_size,
+           uint16_t                         expected_progress_type,
+           operation_context_progress_func  progress_func,
+           void                            *progress_user_data,
            char          **stdout,
            uint8_t       **rsp,
            size_t         *rsp_size)
@@ -137,6 +158,11 @@ operation (ratp_link_t    *ratp,
     ctx.expected_rsp_type = expected_rsp_type;
     ctx.propagate_rsp = (rsp && rsp_size);
     ctx.propagate_stdout = !!stdout;
+    ctx.expected_progress_type = expected_progress_type;
+    ctx.progress_func = progress_func;
+    ctx.progress_user_data = progress_user_data;
+
+    ratp_barebox_debug ("ratp operation setup with timeout in %lums", timeout_ms);
 
     clock_gettime (CLOCK_REALTIME, &absolute_timeout);
     absolute_timeout.tv_sec  += (timeout_ms / 1000);
@@ -195,7 +221,7 @@ ratp_barebox_link_ping (ratp_link_t   *ratp,
                       timeout_ms,
                       BB_RATP_TYPE_PONG,
                       (const uint8_t *) &msg, sizeof (msg),
-                      NULL, NULL, NULL);
+                      0, NULL, NULL, NULL, NULL, NULL);
 }
 
 /******************************************************************************/
@@ -231,6 +257,7 @@ ratp_barebox_link_command (ratp_link_t    *ratp,
                          timeout_ms,
                          BB_RATP_TYPE_COMMAND_RETURN,
                          (const uint8_t *) msg, msg_size,
+                         0, NULL, NULL,
                          out_stdout_result,
                          &response, &response_size)) != RATP_STATUS_OK)
         goto out;
@@ -288,7 +315,7 @@ ratp_barebox_link_getenv (ratp_link_t    *ratp,
                          timeout_ms,
                          BB_RATP_TYPE_GETENV_RETURN,
                          (const uint8_t *) msg, msg_size,
-                         NULL,
+                         0, NULL, NULL, NULL,
                          &response, &response_size)) != RATP_STATUS_OK)
         goto out;
 
@@ -364,7 +391,7 @@ ratp_barebox_link_md (ratp_link_t    *ratp,
                          timeout_ms,
                          BB_RATP_TYPE_MD_RETURN,
                          (const uint8_t *) req_md, req_size,
-                         NULL,
+                         0, NULL, NULL, NULL,
                          &rsp, &rsp_size)) != RATP_STATUS_OK)
         goto out;
 
@@ -478,7 +505,7 @@ ratp_barebox_link_mw (ratp_link_t    *ratp,
                          timeout_ms,
                          BB_RATP_TYPE_MW_RETURN,
                          (const uint8_t *) req_mw, req_size,
-                         NULL,
+                         0, NULL, NULL, NULL,
                          &rsp, &rsp_size)) != RATP_STATUS_OK)
         goto out;
 
@@ -515,8 +542,8 @@ out:
 /* Reset */
 
 struct ratp_bb_reset {
-	struct ratp_bb header;
-	uint8_t        force;
+    struct ratp_bb header;
+    uint8_t        force;
 } __attribute__((packed));
 
 ratp_status_t
@@ -540,6 +567,191 @@ ratp_barebox_link_reset (ratp_link_t *ratp,
     st = ratp_link_send (ratp, 0, (const uint8_t *) msg, msg_size, NULL, NULL);
 
     free (msg);
+    return st;
+}
+
+/******************************************************************************/
+/* Memtest */
+
+struct memtest_progress_context {
+    ratp_barebox_link_memtest_progress_func  progress_func;
+    void                                    *progress_user_data;
+};
+
+static void
+memtest_progress (ratp_link_t   *self,
+                  const uint8_t *msg,
+                  size_t         msg_size,
+                  void          *user_data)
+{
+    struct memtest_progress_context *progress_ctx = (struct memtest_progress_context *)user_data;
+    struct ratp_bb_memtest_progress *progress_msg = (struct ratp_bb_memtest_progress *)msg;
+    uint16_t                         progress_buffer_offset;
+    uint16_t                         progress_buffer_size;
+    uint8_t                         *progress_buffer;
+    char                            *step_description = NULL;
+    uint16_t                         step_description_size;
+    uint16_t                         step_description_offset;
+    uint64_t                         progress_offset;
+    uint64_t                         progress_max;
+
+    if (msg_size < sizeof (*progress_msg)) {
+        ratp_barebox_warning ("unexpected progress message size (%zu < %zu)",
+                              msg_size, sizeof (struct ratp_bb_memtest_progress));
+        return;
+    }
+
+    if (!progress_ctx->progress_func)
+        return;
+
+    /* Validate buffer */
+    progress_buffer_offset = be16toh (progress_msg->buffer_offset);
+    if (progress_buffer_offset > msg_size) {
+        ratp_barebox_warning ("invalid error buffer offset received (%hu > %zu)",
+                              progress_buffer_offset, msg_size);
+        return;
+    }
+    progress_buffer_size = msg_size - progress_buffer_offset;
+    progress_buffer = (uint8_t *)progress_msg + progress_buffer_offset;
+
+    /* Validate step description string */
+    step_description_offset = be16toh (progress_msg->step_description_offset);
+    if (step_description_offset != 0) {
+        ratp_barebox_warning ("invalid step description offset received");
+        return;
+    }
+    step_description_size = be16toh (progress_msg->step_description_size);
+    if (progress_buffer_size < step_description_size) {
+        ratp_barebox_warning ("unexpected response size (%hu < %hu): missing step description",
+                              progress_buffer_size, step_description_size);
+        return;
+    }
+    if (step_description_size > 0)
+        step_description = strndup ((char *)(&progress_buffer[step_description_offset]), step_description_size);
+
+    progress_offset = be64toh (progress_msg->progress_offset);
+    progress_max    = be64toh (progress_msg->progress_max);
+
+    progress_ctx->progress_func (self,
+                                 step_description,
+                                 progress_offset,
+                                 progress_max,
+                                 progress_ctx->progress_user_data);
+
+    free (step_description);
+}
+
+ratp_status_t
+ratp_barebox_link_memtest (ratp_link_t    *ratp,
+                           unsigned long   timeout_ms,
+                           bool            bus_only,
+                           bool            cached,
+                           bool            uncached,
+                           bool            thorough,
+                           char          **error_description,
+                           uint64_t       *error_expected_value,
+                           uint64_t       *error_actual_value,
+                           uint64_t       *error_address,
+                           ratp_barebox_link_memtest_progress_func  progress_func,
+                           void                                    *progress_user_data)
+{
+    struct ratp_bb_memtest_request  *req_memtest = NULL;
+    size_t                           req_size;
+    uint8_t                         *rsp = NULL;
+    struct ratp_bb_memtest_response *rsp_memtest;
+    uint32_t                         rsp_errno;
+    size_t                           rsp_size;
+    uint16_t                         rsp_buffer_offset;
+    uint16_t                         rsp_buffer_size;
+    uint8_t                         *rsp_buffer;
+    uint16_t                         error_description_offset;
+    uint16_t                         error_description_size;
+    ratp_status_t                    st;
+    struct memtest_progress_context  progress_context = {
+        .progress_func = progress_func,
+        .progress_user_data = progress_user_data,
+    };
+
+    req_size = sizeof (struct ratp_bb_memtest_request);
+    req_memtest = (struct ratp_bb_memtest_request *) calloc (req_size, 1);
+    if (!req_memtest)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    req_memtest->header.type  = htobe16 (BB_RATP_TYPE_MEMTEST);
+    req_memtest->header.flags = 0;
+    req_memtest->buffer_offset = htobe16 (sizeof (struct ratp_bb_memtest_request));
+    req_memtest->cached = cached;
+    req_memtest->uncached = uncached;
+    req_memtest->bus_only = bus_only;
+    req_memtest->thorough = thorough;
+
+    if ((st = operation (ratp,
+                         timeout_ms,
+                         BB_RATP_TYPE_MEMTEST_RETURN,
+                         (const uint8_t *) req_memtest, req_size,
+                         BB_RATP_TYPE_MEMTEST_PROGRESS, memtest_progress, &progress_context,
+                         NULL,
+                         &rsp, &rsp_size)) != RATP_STATUS_OK)
+        goto out;
+
+    if (rsp_size < (sizeof (struct ratp_bb_memtest_response))) {
+        ratp_barebox_warning ("unexpected response size (%zu < %zu)",
+                              rsp_size, sizeof (struct ratp_bb_memtest_response));
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    rsp_memtest = (struct ratp_bb_memtest_response *) rsp;
+
+    /* Validate buffer */
+    rsp_buffer_offset = be16toh (rsp_memtest->buffer_offset);
+    if (rsp_buffer_offset > rsp_size) {
+        ratp_barebox_warning ("invalid error buffer offset received (%hu > %zu)",
+                              rsp_buffer_offset, rsp_size);
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+    rsp_buffer_size = rsp_size - rsp_buffer_offset;
+    rsp_buffer = (uint8_t *)rsp + rsp_buffer_offset;
+
+    /* Validate error description string */
+    error_description_offset = be16toh (rsp_memtest->error_description_offset);
+    if (error_description_offset != 0) {
+        ratp_barebox_warning ("invalid error description offset received");
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+    error_description_size = be16toh (rsp_memtest->error_description_size);
+    if (rsp_buffer_size < error_description_size) {
+        ratp_barebox_warning ("unexpected response size (%hu < %hu): missing error description",
+                              rsp_buffer_size, error_description_size);
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    /* Check errno */
+    rsp_errno = be32toh (rsp_memtest->v_errno);
+    if (rsp_errno != 0) {
+        ratp_barebox_warning ("operation failed with error: %d", rsp_errno);
+
+        if (error_description)
+            *error_description = strndup ((char *)(&rsp_buffer[error_description_offset]), error_description_size);
+        if (error_expected_value)
+            *error_expected_value = be64toh (rsp_memtest->expected_value);
+        if (error_actual_value)
+            *error_actual_value = be64toh (rsp_memtest->actual_value);
+        if (error_address)
+            *error_address = be64toh (rsp_memtest->address);
+
+        st = RATP_STATUS_ERROR;
+        goto out;
+    }
+
+    st = RATP_STATUS_OK;
+
+out:
+    free (rsp);
+    free (req_memtest);
     return st;
 }
 

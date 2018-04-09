@@ -143,6 +143,58 @@ ratp_status_t ratp_barebox_link_mw (ratp_link_t    *ratp,
 ratp_status_t ratp_barebox_link_reset (ratp_link_t *ratp,
                                        bool         force);
 
+/**
+ * ratp_barebox_link_memtest_progress_func:
+ * @ratp: the #ratp_link_t.
+ * @step_description: description of the test step being currently run.
+ * @progress_offset: current progress in the step.
+ * @progress_max: maximum expected progress offset.
+ * @user_data: opaque pointer passed to ratp_barebox_link_memtest().
+ *
+ * This type defines the method that is called whenever a memtest progress
+ * report is received.
+ */
+typedef void (* ratp_barebox_link_memtest_progress_func) (ratp_link_t *ratp,
+                                                          const char  *step_description,
+                                                          uint64_t     progress_offset,
+                                                          uint64_t     progress_max,
+                                                          void        *user_data);
+
+/**
+ * ratp_barebox_link_memtest:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @bus_only: perform only a test on bus lines.
+ * @cached: test using cached memory.
+ * @uncached: test using uncached memory.
+ * @thorough: test all free areas (otherwise, only test biggest free area).
+ * @error_description: a newly allocated string with the description of the failure, free it with free() when no longer used.
+ * @error_expected_value: on failure, expected value to be read from memory.
+ * @error_actual_value: on failure, actual value read from memory.
+ * @error_address: on failure, address where the memory test failed.
+ * @progress_func: callback to be called for every progress report received.
+ * @progress_user_data: opaque pointer passed to @progress_func.
+ *
+ * Memory test
+ *
+ * Performs a memory test with the given configuration.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_memtest (ratp_link_t    *ratp,
+                                         unsigned long   timeout_ms,
+                                         bool            bus_only,
+                                         bool            cached,
+                                         bool            uncached,
+                                         bool            thorough,
+                                         char          **error_description,
+                                         uint64_t       *error_expected_value,
+                                         uint64_t       *error_actual_value,
+                                         uint64_t       *error_address,
+                                         ratp_barebox_link_memtest_progress_func  progress_func,
+                                         void                                    *progress_user_data);
+
 /******************************************************************************/
 
 /**
