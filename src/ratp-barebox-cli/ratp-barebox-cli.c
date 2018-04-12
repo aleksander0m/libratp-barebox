@@ -41,7 +41,7 @@
 #define PROGRAM_NAME    "ratp-barebox-cli"
 #define PROGRAM_VERSION PACKAGE_VERSION
 
-#define DEFAULT_TIMEOUT 5000
+#define DEFAULT_TIMEOUT_MS 5000
 
 /******************************************************************************/
 
@@ -517,14 +517,14 @@ print_help (void)
             "  -R, --force-reset               Request forced reset.\n"
             "\n"
             "Common options:\n"
-            "  -T, --timeout=[TIMEOUT]         Command timeout (seconds).\n"
+            "  -T, --timeout=[TIMEOUT]         Command timeout.\n"
             "  -q, --quiet                     Display only command results.\n"
             "  -d, --debug                     Enable verbose logging.\n"
             "  -h, --help                      Show help.\n"
             "  -v, --version                   Show version.\n"
             "\n"
             "Notes:\n"
-            " * [TIMEOUT] is given in seconds.\n"
+            " * [TIMEOUT] is given in milliseconds.\n"
             " * [BAUDRATE] may be any of:\n"
             "     9600, 19200, 38400, 57600, 115200 (default), 230400, 460800,\n"
             "     500000, 576000, 921600, 1000000, 1152000, 1500000, 2000000,\n"
@@ -554,7 +554,7 @@ print_version (void)
 int main (int argc, char **argv)
 {
     int            idx, iarg = 0;
-    unsigned int   timeout = DEFAULT_TIMEOUT;
+    unsigned int   timeout = DEFAULT_TIMEOUT_MS;
     char          *tty_path = NULL;
     speed_t        tty_baudrate = B0;
     char          *fifo_in_path = NULL;
