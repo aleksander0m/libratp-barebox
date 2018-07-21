@@ -129,6 +129,83 @@ ratp_status_t ratp_barebox_link_mw (ratp_link_t    *ratp,
                                     const uint8_t  *data,
                                     uint16_t        data_size,
                                     uint16_t       *out_written);
+
+/**
+ * ratp_barebox_link_i2c_flag_t:
+ * @RATP_BAREBOX_LINK_I2C_FLAG_NONE: None.
+ * @RATP_BAREBOX_LINK_I2C_FLAG_WIDE_ADDRESS: Word (16bit) wide access should be used.
+ * @RATP_BAREBOX_LINK_I2C_FLAG_MASTER_MODE: Master send/receive, ignoring start register.
+ *
+ * Flags to use in the i2c read/write operations.
+ */
+typedef enum {
+    RATP_BAREBOX_LINK_I2C_FLAG_NONE         = 0,
+    RATP_BAREBOX_LINK_I2C_FLAG_WIDE_ADDRESS = 1 << 0,
+    RATP_BAREBOX_LINK_I2C_FLAG_MASTER_MODE  = 1 << 1,
+} ratp_barebox_link_i2c_flag_t;
+
+/**
+ * ratp_barebox_link_i2c_read:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @bus: bus number.
+ * @addr: device address.
+ * @reg: start register.
+ * @flags: a bitmask of #ratp_barebox_link_i2c_flag_t values.
+ * @size: amount of bytes to read.
+ * @out: output location to store the data read.
+ * @out_size: size of the data read in @out.
+ *
+ * i2c read.
+ *
+ * Reads @size bytes from device at @bus/@addr.
+ *
+ * If %RATP_STATUS_OK is returned, @out and @out_size will be set.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_i2c_read (ratp_link_t    *ratp,
+                                          unsigned long   timeout_ms,
+                                          uint8_t         bus,
+                                          uint8_t         addr,
+                                          uint16_t        reg,
+                                          ratp_barebox_link_i2c_flag_t flags,
+                                          uint16_t        size,
+                                          uint8_t       **out,
+                                          uint16_t       *out_size);
+
+/**
+ * ratp_barebox_link_i2c_write:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @bus: bus number.
+ * @addr: device address.
+ * @reg: optional start register, set to 0xffff to ignore.
+ * @flags: a bitmask of #ratp_barebox_link_i2c_flag_t values.
+ * @data: data to write.
+ * @data_size: amount of bytes to write.
+ * @out_written: number of bytes successfully written.
+ *
+ * i2c write.
+ *
+ * Writes @data_size bytes to the device at @bus/@addr.
+ *
+ * If %RATP_STATUS_OK is returned, @out_written will be set.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_i2c_write (ratp_link_t    *ratp,
+                                           unsigned long   timeout_ms,
+                                           uint8_t         bus,
+                                           uint8_t         addr,
+                                           uint16_t        reg,
+                                           ratp_barebox_link_i2c_flag_t flags,
+                                           const uint8_t  *data,
+                                           uint16_t        data_size,
+                                           uint16_t       *out_written);
+
 /**
  * ratp_barebox_link_reset:
  * @ratp: a #ratp_link_t.

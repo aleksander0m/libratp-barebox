@@ -17,6 +17,10 @@
 #define BB_RATP_TYPE_MW                 12
 #define BB_RATP_TYPE_MW_RETURN          13
 #define BB_RATP_TYPE_RESET              14
+#define BB_RATP_TYPE_I2C_READ           15
+#define BB_RATP_TYPE_I2C_READ_RETURN    16
+#define BB_RATP_TYPE_I2C_WRITE          17
+#define BB_RATP_TYPE_I2C_WRITE_RETURN   18
 
 struct ratp_bb {
   uint16_t type;
@@ -69,8 +73,47 @@ struct ratp_bb_mw_request {
 	uint8_t  buffer[];
 } __attribute__((packed));
 
-
 struct ratp_bb_mw_response {
+	struct ratp_bb header;
+	uint16_t buffer_offset;
+	uint32_t errno_v;
+	uint16_t written;
+	uint8_t  buffer[];
+} __attribute__((packed));
+
+struct ratp_bb_i2c_read_request {
+	struct ratp_bb header;
+	uint16_t buffer_offset;
+	uint8_t  bus;
+	uint8_t  addr;
+	uint16_t reg;
+	uint8_t  flags;
+	uint16_t size;
+	uint8_t  buffer[];
+} __attribute__((packed));
+
+struct ratp_bb_i2c_read_response {
+	struct ratp_bb header;
+	uint16_t buffer_offset;
+	uint32_t errno_v;
+	uint16_t data_size;
+	uint16_t data_offset;
+	uint8_t  buffer[];
+} __attribute__((packed));
+
+struct ratp_bb_i2c_write_request {
+	struct ratp_bb header;
+	uint16_t buffer_offset;
+	uint8_t  bus;
+	uint8_t  addr;
+	uint16_t reg;
+	uint8_t  flags;
+	uint16_t data_size;
+	uint16_t data_offset;
+	uint8_t  buffer[];
+} __attribute__((packed));
+
+struct ratp_bb_i2c_write_response {
 	struct ratp_bb header;
 	uint16_t buffer_offset;
 	uint32_t errno_v;

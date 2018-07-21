@@ -512,6 +512,193 @@ out:
 }
 
 /******************************************************************************/
+/* i2c read */
+
+ratp_status_t
+ratp_barebox_link_i2c_read (ratp_link_t    *ratp,
+                            unsigned long   timeout_ms,
+                            uint8_t         bus,
+                            uint8_t         addr,
+                            uint16_t        reg,
+                            ratp_barebox_link_i2c_flag_t flags,
+                            uint16_t        size,
+                            uint8_t       **out_data,
+                            uint16_t       *out_data_size)
+{
+    struct ratp_bb_i2c_read_request  *req_i2c_read = NULL;
+    struct ratp_bb_i2c_read_response *rsp_i2c_read;
+    size_t         req_size;
+    uint8_t       *rsp = NULL;
+    uint32_t       rsp_errno;
+    uint8_t       *rsp_buffer;
+    uint16_t       rsp_buffer_offset;
+    uint16_t       rsp_buffer_size;
+    size_t         rsp_size;
+    uint16_t       data_offset;
+    uint16_t       data_size;
+    ratp_status_t  st;
+
+    req_size = sizeof (struct ratp_bb_i2c_read_request);
+
+    req_i2c_read = (struct ratp_bb_i2c_read_request *) calloc (req_size, 1);
+    if (!req_i2c_read)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    req_i2c_read->header.type  = htobe16 (BB_RATP_TYPE_I2C_READ);
+    req_i2c_read->header.flags = 0;
+    req_i2c_read->buffer_offset = htobe16 (sizeof (struct ratp_bb_i2c_read_request));
+    req_i2c_read->bus  = bus;
+    req_i2c_read->addr = addr;
+    req_i2c_read->reg = htobe16 (reg);
+    req_i2c_read->flags = (flags & 0xff);
+    req_i2c_read->size = htobe16 (size);
+
+    if ((st = operation (ratp,
+                         timeout_ms,
+                         BB_RATP_TYPE_I2C_READ_RETURN,
+                         (const uint8_t *) req_i2c_read, req_size,
+                         NULL,
+                         &rsp, &rsp_size)) != RATP_STATUS_OK)
+        goto out;
+
+    if (rsp_size < (sizeof (struct ratp_bb_i2c_read_response))) {
+        ratp_barebox_warning ("unexpected response size (%zu < %zu)",
+                              rsp_size, sizeof (struct ratp_bb_i2c_read_response));
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    rsp_i2c_read = (struct ratp_bb_i2c_read_response *) rsp;
+
+    /* Check errno */
+    rsp_errno = be32toh (rsp_i2c_read->errno_v);
+    if (rsp_errno != 0) {
+        /* TODO: more errno-specific return here better */
+        ratp_barebox_warning ("operation failed with error: %d", rsp_errno);
+        st = RATP_STATUS_ERROR;
+        goto out;
+    }
+
+    /* Validate buffer */
+    rsp_buffer_offset = be16toh (rsp_i2c_read->buffer_offset);
+    if (rsp_buffer_offset > rsp_size) {
+        ratp_barebox_warning ("invalid buffer offset received (%hu > %zu)",
+                              rsp_buffer_offset, rsp_size);
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+    rsp_buffer_size = rsp_size - rsp_buffer_offset;
+    rsp_buffer = (uint8_t *)rsp + rsp_buffer_offset;
+
+    /* Validate data */
+    data_offset = be16toh (rsp_i2c_read->data_offset);
+    if (data_offset != 0) {
+        ratp_barebox_warning ("invalid data offset received");
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+    data_size = be16toh (rsp_i2c_read->data_size);
+    if (rsp_buffer_size < data_size) {
+        ratp_barebox_warning ("unexpected response size (%hu < %hu): missing data",
+                              rsp_buffer_size, data_size);
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    st = RATP_STATUS_OK;
+
+    if (out_data_size)
+        *out_data_size = data_size;
+    if (out_data) {
+        *out_data = malloc (data_size);
+        if (!*out_data)
+            st = RATP_STATUS_ERROR_NO_MEMORY;
+        else
+            memcpy (*out_data, &rsp_buffer[data_offset], data_size);
+    }
+
+out:
+    free (rsp);
+    free (req_i2c_read);
+    return st;
+}
+
+/******************************************************************************/
+/* i2c write */
+
+ratp_status_t
+ratp_barebox_link_i2c_write (ratp_link_t    *ratp,
+                             unsigned long   timeout_ms,
+                             uint8_t         bus,
+                             uint8_t         addr,
+                             uint16_t        reg,
+                             ratp_barebox_link_i2c_flag_t flags,
+                             const uint8_t  *data,
+                             uint16_t        data_size,
+                             uint16_t       *out_written)
+{
+    struct ratp_bb_i2c_write_request  *req_i2c_write = NULL;
+    struct ratp_bb_i2c_write_response *rsp_i2c_write;
+    size_t         req_size;
+    uint8_t       *rsp = NULL;
+    uint32_t       rsp_errno;
+    size_t         rsp_size;
+    ratp_status_t  st;
+
+    req_size = sizeof (struct ratp_bb_i2c_write_request) + data_size;
+
+    req_i2c_write = (struct ratp_bb_i2c_write_request *) calloc (req_size, 1);
+    if (!req_i2c_write)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    req_i2c_write->header.type  = htobe16 (BB_RATP_TYPE_I2C_WRITE);
+    req_i2c_write->header.flags = 0;
+    req_i2c_write->buffer_offset = htobe16 (sizeof (struct ratp_bb_i2c_write_request));
+    req_i2c_write->bus = bus;
+    req_i2c_write->addr = addr;
+    req_i2c_write->reg = htobe16 (reg);
+    req_i2c_write->data_size = htobe16(data_size);
+    req_i2c_write->data_offset = 0;
+    memcpy (&req_i2c_write->buffer[0], data, data_size);
+
+    if ((st = operation (ratp,
+                         timeout_ms,
+                         BB_RATP_TYPE_I2C_WRITE_RETURN,
+                         (const uint8_t *) req_i2c_write, req_size,
+                         NULL,
+                         &rsp, &rsp_size)) != RATP_STATUS_OK)
+        goto out;
+
+    if (rsp_size < (sizeof (struct ratp_bb_i2c_write_response))) {
+        ratp_barebox_warning ("unexpected response size (%zu < %zu)",
+                              rsp_size, sizeof (struct ratp_bb_i2c_write_response));
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    rsp_i2c_write = (struct ratp_bb_i2c_write_response *) rsp;
+
+    /* Check errno */
+    rsp_errno = be32toh (rsp_i2c_write->errno_v);
+    if (rsp_errno != 0) {
+        /* TODO: more errno-specific return here better */
+        ratp_barebox_warning ("operation failed with error: %d", rsp_errno);
+        st = RATP_STATUS_ERROR;
+        goto out;
+    }
+
+    st = RATP_STATUS_OK;
+
+    if (out_written)
+        *out_written = be16toh (rsp_i2c_write->written);
+
+out:
+    free (rsp);
+    free (req_i2c_write);
+    return st;
+}
+
+/******************************************************************************/
 /* Reset */
 
 struct ratp_bb_reset {
