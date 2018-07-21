@@ -469,6 +469,239 @@ out:
 }
 
 static int
+run_i2c_read (ratp_link_t  *ratp,
+              const char   *action_args,
+              unsigned int  timeout,
+              bool          quiet)
+{
+    ratp_status_t  st;
+    uint8_t       *out = NULL;
+    uint16_t       out_size = 0;
+    char          *out_hex = NULL;
+    int            ret = -1;
+    char          *aux0, *aux1, *aux2, *aux3;
+    unsigned long  bus;
+    unsigned long  addr;
+    unsigned long  reg;
+    unsigned long  size;
+    int            reglen;
+    ratp_barebox_link_i2c_flag_t flags = RATP_BAREBOX_LINK_I2C_FLAG_NONE;
+
+    aux0 = strdup (action_args);
+    if (!aux0)
+        goto out;
+
+    aux1 = strchr (aux0, ',');
+    if (!aux1) {
+        fprintf (stderr, "error: only one field given in --i2c-read arguments\n");
+        goto out;
+    }
+    *aux1 = '\0';
+    aux1++;
+
+    aux2 = strchr (aux1, ',');
+    if (!aux2) {
+        fprintf (stderr, "error: only two fields given in --i2c-read arguments\n");
+        goto out;
+    }
+    *aux2 = '\0';
+    aux2++;
+
+    aux3 = strchr (aux2, ',');
+    if (!aux3) {
+        fprintf (stderr, "error: only three fields given in --i2c-read arguments\n");
+        goto out;
+    }
+    *aux3 = '\0';
+    aux3++;
+
+    bus = strtoul (aux0, NULL, 16);
+    if (bus > 0xFF) {
+        fprintf (stderr, "error: invalid bus number\n");
+        goto out;
+    }
+
+    addr = strtoul (aux1, NULL, 16);
+    if (addr > 0x7F) {
+        fprintf (stderr, "error: invalid address\n");
+        goto out;
+    }
+
+    if (aux2[0] == '\0') {
+        reg = 0;
+        flags |= RATP_BAREBOX_LINK_I2C_FLAG_MASTER_MODE;
+    } else {
+        if (strncmp (aux2, "0x", 2) == 0)
+            aux2 += 2;
+        reglen = strlen (aux2);
+        if (reglen != 2 && reglen != 4) {
+            fprintf (stderr, "error: invalid register: must be given either as 1 byte (0xAB) or 2 bytes (0xABCD)\n");
+            goto out;
+        }
+        reg = strtoul (aux2, NULL, 16);
+        assert (reglen <= 0xFFFF);
+        if (reglen == 4)
+            flags |= RATP_BAREBOX_LINK_I2C_FLAG_WIDE_ADDRESS;
+    }
+
+    size = strtoul (aux3, NULL, 10);
+    if (!size) {
+        fprintf (stderr, "error: no size requested\n");
+        goto out;
+    }
+
+    if ((st = ratp_link_active_open_sync (ratp, 5000)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't actively open link: %s\n", ratp_status_str (st));
+        goto out;
+    }
+
+    if (!quiet)
+        printf ("Sending i2c-read request: bus:0x%02x addr:0x%02x reg:0x%0*x (+%lu bytes)\n",
+                (unsigned int)bus, (unsigned int)addr, reglen, (unsigned int)reg, size);
+    if ((st = ratp_barebox_link_i2c_read (ratp, timeout, bus, addr, reg, flags, size, &out, &out_size)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't i2c-read: %s\n", ratp_status_str (st));
+        ret = -1;
+        goto out_close;
+    }
+
+    out_hex = strhex (out, out_size, ":");
+    if (!out_hex) {
+        fprintf (stderr, "error: couldn't hex print returned contents\n");
+        ret = -2;
+        goto out_close;
+    }
+    printf ("%s\n", out_hex);
+    ret = 0;
+
+out_close:
+
+    if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
+        fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
+
+out:
+    free (out);
+    free (out_hex);
+    free (aux0);
+
+    return ret;
+}
+
+static int
+run_i2c_write (ratp_link_t  *ratp,
+               const char   *action_args,
+               unsigned int  timeout,
+               bool          quiet)
+{
+    ratp_status_t  st;
+    uint8_t       *data = NULL;
+    size_t         data_size = 0;
+    int            ret = -1;
+    char          *aux0, *aux1, *aux2, *aux3;
+    unsigned long  bus;
+    unsigned long  addr;
+    unsigned long  reg;
+    uint16_t       written;
+    int            reglen;
+    ratp_barebox_link_i2c_flag_t flags = RATP_BAREBOX_LINK_I2C_FLAG_NONE;
+
+    aux0 = strdup (action_args);
+    if (!aux0)
+        goto out;
+
+    aux1 = strchr (aux0, ',');
+    if (!aux1) {
+        fprintf (stderr, "error: only one field given in --i2c-write arguments\n");
+        goto out;
+    }
+    *aux1 = '\0';
+    aux1++;
+
+    aux2 = strchr (aux1, ',');
+    if (!aux2) {
+        fprintf (stderr, "error: only two fields given in --i2c-write arguments\n");
+        goto out;
+    }
+    *aux2 = '\0';
+    aux2++;
+
+    aux3 = strchr (aux2, ',');
+    if (!aux3) {
+        fprintf (stderr, "error: only three fields given in --i2c-write arguments\n");
+        goto out;
+    }
+    *aux3 = '\0';
+    aux3++;
+
+    bus = strtoul (aux0, NULL, 16);
+    if (bus > 0xFF) {
+        fprintf (stderr, "error: invalid bus number\n");
+        goto out;
+    }
+
+    addr = strtoul (aux1, NULL, 16);
+    if (addr > 0x7F) {
+        fprintf (stderr, "error: invalid address\n");
+        goto out;
+    }
+
+    if (aux2[0] == '\0') {
+        reg = 0;
+        flags |= RATP_BAREBOX_LINK_I2C_FLAG_MASTER_MODE;
+    } else {
+        if (strncmp (aux2, "0x", 2) == 0)
+            aux2 += 2;
+        reglen = strlen (aux2);
+        if (reglen != 2 && reglen != 4) {
+            fprintf (stderr, "error: invalid register: must be given either as 1 byte (0xAB) or 2 bytes (0xABCD)\n");
+            goto out;
+        }
+        reg = strtoul (aux2, NULL, 16);
+        assert (reglen <= 0xFFFF);
+        if (reglen == 4)
+            flags |= RATP_BAREBOX_LINK_I2C_FLAG_WIDE_ADDRESS;
+    }
+
+    data = hexstr (aux3, ":", &data_size);
+    if (!data) {
+        fprintf (stderr, "error: couldn't process input data\n");
+        goto out;
+    }
+
+    if (data_size > 0xFFFF) {
+        fprintf (stderr, "error: too much data\n");
+        goto out;
+    }
+
+    if ((st = ratp_link_active_open_sync (ratp, 5000)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't actively open link: %s\n", ratp_status_str (st));
+        goto out;
+    }
+
+    if (!quiet)
+        printf ("Sending i2c-write request: bus:0x%02x addr:0x%02x reg:0x%0*x (+%zu bytes)\n",
+                (unsigned int)bus, (unsigned int)addr, reglen, (unsigned int)reg, data_size);
+    if ((st = ratp_barebox_link_i2c_write (ratp, timeout, bus, addr, reg, flags, data, (uint16_t) data_size, &written)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't i2c-write: %s\n", ratp_status_str (st));
+        ret = -1;
+        goto out_close;
+    }
+
+    printf ("%hu/%zu bytes written\n", written, data_size);
+    ret = 0;
+
+out_close:
+
+    if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
+        fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
+
+out:
+    free (data);
+    free (aux0);
+
+    return ret;
+}
+
+static int
 run_reset (ratp_link_t *ratp,
            bool         force,
            bool         quiet)
@@ -500,28 +733,30 @@ print_help (void)
             "Usage: " PROGRAM_NAME " <option>\n"
             "\n"
             "TTY link selection:\n"
-            "  -t, --tty=[PATH]                TTY device file path\n"
-            "  -b, --tty-baudrate=[BAUDRATE]   Serial port baudrate\n"
+            "  -t, --tty=[PATH]                            TTY device file path\n"
+            "  -b, --tty-baudrate=[BAUDRATE]               Serial port baudrate\n"
             "\n"
             "FIFO link selection:\n"
-            "  -i, --fifo-in=[PATH]            FIFO input path.\n"
-            "  -o, --fifo-out=[PATH]           FIFO output path.\n"
+            "  -i, --fifo-in=[PATH]                        FIFO input path.\n"
+            "  -o, --fifo-out=[PATH]                       FIFO output path.\n"
             "\n"
             "Actions:\n"
-            "  -p, --ping                      PING barebox.\n"
-            "  -c, --command=[COMMAND]         Run a command in barebox.\n"
-            "  -g, --getenv=[ENV]              Read the value of an environment variable.\n"
-            "  -m, --md=[PATH,0xADDR,SIZE]     Memory dump SIZE bytes from file PATH at ADDR .\n"
-            "  -w, --mw=[PATH,0xADDR,DATA]     Memory write DATA to file PATH at ADDR.\n"
-            "  -r, --reset                     Request reset.\n"
-            "  -R, --force-reset               Request forced reset.\n"
+            "  -p, --ping                                  PING barebox.\n"
+            "  -c, --command=[COMMAND]                     Run a command in barebox.\n"
+            "  -g, --getenv=[ENV]                          Read the value of an environment variable.\n"
+            "  -m, --md=[PATH,0xADDR,SIZE]                 Memory dump SIZE bytes from file PATH at ADDR .\n"
+            "  -w, --mw=[PATH,0xADDR,DATA]                 Memory write DATA to file PATH at ADDR.\n"
+            "  -M, --i2c-read=[0xBUS,0xADDR,(0xREG),SIZE]  i2c read SIZE bytes from device at BUS/ADDR.\n"
+            "  -W, --i2c-write=[0xBUS,0xADDR,(0xREG),DATA] i2c write DATA to device at BUS/ADDR.\n"
+            "  -r, --reset                                 Request reset.\n"
+            "  -R, --force-reset                           Request forced reset.\n"
             "\n"
             "Common options:\n"
-            "  -T, --timeout=[TIMEOUT]         Command timeout.\n"
-            "  -q, --quiet                     Display only command results.\n"
-            "  -d, --debug                     Enable verbose logging.\n"
-            "  -h, --help                      Show help.\n"
-            "  -v, --version                   Show version.\n"
+            "  -T, --timeout=[TIMEOUT]                     Command timeout.\n"
+            "  -q, --quiet                                 Display only command results.\n"
+            "  -d, --debug                                 Enable verbose logging.\n"
+            "  -h, --help                                  Show help.\n"
+            "  -v, --version                               Show version.\n"
             "\n"
             "Notes:\n"
             " * [TIMEOUT] is given in milliseconds.\n"
@@ -529,7 +764,12 @@ print_help (void)
             "     9600, 19200, 38400, 57600, 115200 (default), 230400, 460800,\n"
             "     500000, 576000, 921600, 1000000, 1152000, 1500000, 2000000,\n"
             "     2500000, 3000000, 3500000 or 4000000.\n"
+            " * [BUS] is an i2c bus number, given in hexadecimal format.\n"
             " * [ADDR] is an address, given in hexadecimal format.\n"
+            "     For i2c read/write operations, if [ADDR] is given with 2 bytes (e.g. 0xABCD),\n"
+            "     wide access is enabled implicitly.\n"
+            " * [REG] is an i2c register number, in hexadecimal format.\n"
+            "     If none given (empty), master send/receive mode is assumed.\n"
             " * [SIZE] is given in decimal format.\n"
             " * [DATA] is given in hex with 2 digits per byte and ':' as separator,\n"
             "     e.g.: '00:11:22:33'.\n"
@@ -564,6 +804,8 @@ int main (int argc, char **argv)
     char          *action_getenv = NULL;
     char          *action_md = NULL;
     char          *action_mw = NULL;
+    char          *action_i2c_read = NULL;
+    char          *action_i2c_write = NULL;
     bool           action_reset = NULL;
     bool           action_force_reset = NULL;
     bool           debug = false;
@@ -583,6 +825,8 @@ int main (int argc, char **argv)
         { "getenv",       required_argument, 0, 'g' },
         { "md",           required_argument, 0, 'm' },
         { "mw",           required_argument, 0, 'w' },
+        { "i2c-read",     required_argument, 0, 'M' },
+        { "i2c-write",    required_argument, 0, 'W' },
         { "reset",        no_argument,       0, 'r' },
         { "force-reset",  no_argument,       0, 'R' },
         { "timeout",      required_argument, 0, 'T' },
@@ -596,7 +840,7 @@ int main (int argc, char **argv)
     /* turn off getopt error message */
     opterr = 1;
     while (iarg != -1) {
-        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:m:w:rRT:qdvh", longopts, &idx);
+        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:m:w:M:W:rRT:qdvh", longopts, &idx);
         switch (iarg) {
         case 'i':
             if (fifo_in_path)
@@ -657,6 +901,18 @@ int main (int argc, char **argv)
             else
                 action_mw = strdup (optarg);
             break;
+        case 'M':
+            if (action_i2c_read)
+                fprintf (stderr, "warning: -M,--i2c-read given multiple times\n");
+            else
+                action_i2c_read = strdup (optarg);
+            break;
+        case 'W':
+            if (action_i2c_write)
+                fprintf (stderr, "warning: -W,--i2c-write given multiple times\n");
+            else
+                action_i2c_write = strdup (optarg);
+            break;
         case 'r':
             action_reset = true;
             break;
@@ -687,6 +943,8 @@ int main (int argc, char **argv)
                  !!action_getenv +
                  !!action_md +
                  !!action_mw +
+                 !!action_i2c_read +
+                 !!action_i2c_write +
                  action_reset +
                  action_force_reset);
     if (n_actions > 1) {
@@ -755,6 +1013,10 @@ int main (int argc, char **argv)
         action_ret = run_md (ratp, action_md, timeout, quiet);
     else if (action_mw)
         action_ret = run_mw (ratp, action_mw, timeout, quiet);
+    else if (action_i2c_read)
+        action_ret = run_i2c_read (ratp, action_i2c_read, timeout, quiet);
+    else if (action_i2c_write)
+        action_ret = run_i2c_write (ratp, action_i2c_write, timeout, quiet);
     else if (action_reset)
         action_ret = run_reset (ratp, false, quiet);
     else if (action_force_reset)
@@ -762,6 +1024,8 @@ int main (int argc, char **argv)
     else
         assert (0);
 
+    free (action_i2c_write);
+    free (action_i2c_read);
     free (action_mw);
     free (action_md);
     free (action_getenv);

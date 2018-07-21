@@ -657,6 +657,7 @@ ratp_barebox_link_i2c_write (ratp_link_t    *ratp,
     req_i2c_write->bus = bus;
     req_i2c_write->addr = addr;
     req_i2c_write->reg = htobe16 (reg);
+    req_i2c_write->flags = (flags & 0xff);
     req_i2c_write->data_size = htobe16(data_size);
     req_i2c_write->data_offset = 0;
     memcpy (&req_i2c_write->buffer[0], data, data_size);
