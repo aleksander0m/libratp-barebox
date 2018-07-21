@@ -415,7 +415,7 @@ run_mw (ratp_link_t  *ratp,
 
     aux2 = strchr (aux1, ',');
     if (!aux2) {
-        fprintf (stderr, "error: only two fields given in --md arguments\n");
+        fprintf (stderr, "error: only two fields given in --mw arguments\n");
         goto out;
     }
     *aux2 = '\0';
@@ -512,7 +512,7 @@ print_help (void)
             "  -c, --command=[COMMAND]         Run a command in barebox.\n"
             "  -g, --getenv=[ENV]              Read the value of an environment variable.\n"
             "  -m, --md=[PATH,0xADDR,SIZE]     Memory dump SIZE bytes from file PATH at ADDR .\n"
-            "  -m, --mw=[PATH,0xADDR,DATA]     Memory write DATA to file PATH at ADDR.\n"
+            "  -w, --mw=[PATH,0xADDR,DATA]     Memory write DATA to file PATH at ADDR.\n"
             "  -r, --reset                     Request reset.\n"
             "  -R, --force-reset               Request forced reset.\n"
             "\n"
