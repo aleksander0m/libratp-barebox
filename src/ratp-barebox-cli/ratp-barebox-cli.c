@@ -453,7 +453,8 @@ run_mw (ratp_link_t  *ratp,
         goto out_close;
     }
 
-    printf ("%hu/%zu bytes written\n", written, data_size);
+    if (!quiet)
+        printf ("%hu/%zu bytes written\n", written, data_size);
     ret = 0;
 
 out_close:
@@ -686,7 +687,8 @@ run_i2c_write (ratp_link_t  *ratp,
         goto out_close;
     }
 
-    printf ("%hu/%zu bytes written\n", written, data_size);
+    if (!quiet)
+        printf ("%hu/%zu bytes written\n", written, data_size);
     ret = 0;
 
 out_close:
