@@ -207,6 +207,77 @@ ratp_status_t ratp_barebox_link_i2c_write (ratp_link_t    *ratp,
                                            uint16_t       *out_written);
 
 /**
+ * ratp_barebox_link_gpio_direction_t:
+ * @RATP_BAREBOX_LINK_GPIO_DIRECTION_INPUT: GPIO configured as input.
+ * @RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT: GPIO configured as output.
+ *
+ * Direction of the GPIO.
+ */
+typedef enum {
+    RATP_BAREBOX_LINK_GPIO_DIRECTION_INPUT,
+    RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT
+} ratp_barebox_link_gpio_direction_t;
+
+/**
+ * ratp_barebox_link_gpio_get_value:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @gpio: a GPIO number.
+ * @value: output location to store the value.
+ *
+ * Gets the current value of the input GPIO @gpio.
+ *
+ * This method should only be used with GPIOs configured as
+ * %RATP_BAREBOX_LINK_GPIO_DIRECTION_INPUT.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_gpio_get_value (ratp_link_t   *ratp,
+                                                unsigned long  timeout_ms,
+                                                uint32_t       gpio,
+                                                bool          *value);
+
+/**
+ * ratp_barebox_link_gpio_set_value:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @gpio: a GPIO number.
+ * @value: the value to set.
+ *
+ * Sets the current value of the output GPIO @gpio.
+ *
+ * This method should only be used with GPIOs configured as
+ * %RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_gpio_set_value (ratp_link_t   *ratp,
+                                                unsigned long  timeout_ms,
+                                                uint32_t       gpio,
+                                                bool           value);
+
+/**
+ * ratp_barebox_link_gpio_set_direction:
+ * @ratp: a #ratp_link_t.
+ * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
+ *  finish, or 0 to wait forever.
+ * @gpio: a GPIO number.
+ * @direction: a #ratp_barebox_link_gpio_direction_t.
+ * @value: if @direction is %RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT, the value to set.
+ *
+ * Sets the direction of the GPIO @gpio.
+ *
+ * Returns: a #ratp_status_t.
+ */
+ratp_status_t ratp_barebox_link_gpio_set_direction (ratp_link_t   *ratp,
+                                                    unsigned long  timeout_ms,
+                                                    uint32_t       gpio,
+                                                    ratp_barebox_link_gpio_direction_t direction,
+                                                    bool           value);
+
+/**
  * ratp_barebox_link_reset:
  * @ratp: a #ratp_link_t.
  * @force: force reset, don't call shutdown.

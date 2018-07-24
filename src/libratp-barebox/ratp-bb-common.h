@@ -21,6 +21,12 @@
 #define BB_RATP_TYPE_I2C_READ_RETURN    16
 #define BB_RATP_TYPE_I2C_WRITE          17
 #define BB_RATP_TYPE_I2C_WRITE_RETURN   18
+#define BB_RATP_TYPE_GPIO_GET_VALUE             19
+#define BB_RATP_TYPE_GPIO_GET_VALUE_RETURN      20
+#define BB_RATP_TYPE_GPIO_SET_VALUE             21
+#define BB_RATP_TYPE_GPIO_SET_VALUE_RETURN      22
+#define BB_RATP_TYPE_GPIO_SET_DIRECTION         23
+#define BB_RATP_TYPE_GPIO_SET_DIRECTION_RETURN  24
 
 struct ratp_bb {
   uint16_t type;
@@ -119,6 +125,34 @@ struct ratp_bb_i2c_write_response {
 	uint32_t errno_v;
 	uint16_t written;
 	uint8_t  buffer[];
+} __attribute__((packed));
+
+struct ratp_bb_gpio_get_value_request {
+	struct ratp_bb header;
+	uint32_t       gpio;
+} __attribute__((packed));
+
+struct ratp_bb_gpio_get_value_response {
+	struct ratp_bb header;
+	uint8_t        value;
+} __attribute__((packed));
+
+struct ratp_bb_gpio_set_value_request {
+	struct ratp_bb header;
+	uint32_t       gpio;
+	uint8_t        value;
+} __attribute__((packed));
+
+struct ratp_bb_gpio_set_direction_request {
+	struct ratp_bb header;
+	uint32_t       gpio;
+	uint8_t        direction; /* 0: input, 1: output */
+	uint8_t        value;     /* applicable only if direction output */
+} __attribute__((packed));
+
+struct ratp_bb_gpio_set_direction_response {
+	struct ratp_bb header;
+	uint32_t       errno_v;
 } __attribute__((packed));
 
 #endif /* __RATP_BB_COMMON_H */

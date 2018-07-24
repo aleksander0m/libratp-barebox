@@ -699,6 +699,161 @@ out:
     return st;
 }
 
+ratp_status_t
+ratp_barebox_link_gpio_get_value (ratp_link_t   *ratp,
+                                  unsigned long  timeout_ms,
+                                  uint32_t       gpio,
+                                  bool          *out_value)
+{
+    struct ratp_bb_gpio_get_value_request  *req_gpio = NULL;
+    struct ratp_bb_gpio_get_value_response *rsp_gpio;
+    size_t         req_size;
+    uint8_t       *rsp = NULL;
+    size_t         rsp_size;
+    ratp_status_t  st;
+
+    req_size = sizeof (struct ratp_bb_gpio_get_value_request);
+    req_gpio = (struct ratp_bb_gpio_get_value_request *) calloc (req_size, 1);
+    if (!req_gpio)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    req_gpio->header.type  = htobe16 (BB_RATP_TYPE_GPIO_GET_VALUE);
+    req_gpio->header.flags = 0;
+    req_gpio->gpio = htobe32 (gpio);
+
+    if ((st = operation (ratp,
+                         timeout_ms,
+                         BB_RATP_TYPE_GPIO_GET_VALUE_RETURN,
+                         (const uint8_t *) req_gpio, req_size,
+                         NULL,
+                         &rsp, &rsp_size)) != RATP_STATUS_OK)
+        goto out;
+
+    if (rsp_size < (sizeof (struct ratp_bb_gpio_get_value_response))) {
+        ratp_barebox_warning ("unexpected response size (%zu < %zu)",
+                              rsp_size, sizeof (struct ratp_bb_gpio_get_value_response));
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    rsp_gpio = (struct ratp_bb_gpio_get_value_response *) rsp;
+
+    st = RATP_STATUS_OK;
+
+    if (out_value)
+        *out_value = !!rsp_gpio->value;
+
+out:
+    free (rsp);
+    free (req_gpio);
+    return st;
+}
+
+ratp_status_t
+ratp_barebox_link_gpio_set_value (ratp_link_t   *ratp,
+                                  unsigned long  timeout_ms,
+                                  uint32_t       gpio,
+                                  bool           value)
+{
+    struct ratp_bb_gpio_set_value_request *req_gpio = NULL;
+    size_t         req_size;
+    uint8_t       *rsp = NULL;
+    size_t         rsp_size;
+    ratp_status_t  st;
+
+    req_size = sizeof (struct ratp_bb_gpio_set_value_request);
+    req_gpio = (struct ratp_bb_gpio_set_value_request *) calloc (req_size, 1);
+    if (!req_gpio)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    req_gpio->header.type  = htobe16 (BB_RATP_TYPE_GPIO_SET_VALUE);
+    req_gpio->header.flags = 0;
+    req_gpio->gpio = htobe32 (gpio);
+    req_gpio->value = value;
+
+    if ((st = operation (ratp,
+                         timeout_ms,
+                         BB_RATP_TYPE_GPIO_SET_VALUE_RETURN,
+                         (const uint8_t *) req_gpio, req_size,
+                         NULL,
+                         &rsp, &rsp_size)) != RATP_STATUS_OK)
+        goto out;
+
+    if (rsp_size < (sizeof (struct ratp_bb))) {
+        ratp_barebox_warning ("unexpected response size (%zu < %zu)",
+                              rsp_size, sizeof (struct ratp_bb));
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    st = RATP_STATUS_OK;
+
+out:
+    free (rsp);
+    free (req_gpio);
+    return st;
+}
+
+ratp_status_t
+ratp_barebox_link_gpio_set_direction (ratp_link_t   *ratp,
+                                      unsigned long  timeout_ms,
+                                      uint32_t       gpio,
+                                      ratp_barebox_link_gpio_direction_t direction,
+                                      bool           value)
+{
+    struct ratp_bb_gpio_set_direction_request *req_gpio = NULL;
+    struct ratp_bb_gpio_set_direction_response *rsp_gpio;
+    size_t         req_size;
+    uint8_t       *rsp = NULL;
+    uint32_t       rsp_errno;
+    size_t         rsp_size;
+    ratp_status_t  st;
+
+    req_size = sizeof (struct ratp_bb_gpio_set_direction_request);
+    req_gpio = (struct ratp_bb_gpio_set_direction_request *) calloc (req_size, 1);
+    if (!req_gpio)
+        return RATP_STATUS_ERROR_NO_MEMORY;
+
+    req_gpio->header.type  = htobe16 (BB_RATP_TYPE_GPIO_SET_DIRECTION);
+    req_gpio->header.flags = 0;
+    req_gpio->gpio = htobe32 (gpio);
+    req_gpio->direction = direction;
+    if (direction == RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT)
+        req_gpio->value = value;
+
+    if ((st = operation (ratp,
+                         timeout_ms,
+                         BB_RATP_TYPE_GPIO_SET_DIRECTION_RETURN,
+                         (const uint8_t *) req_gpio, req_size,
+                         NULL,
+                         &rsp, &rsp_size)) != RATP_STATUS_OK)
+        goto out;
+
+    if (rsp_size < (sizeof (struct ratp_bb_gpio_set_direction_response))) {
+        ratp_barebox_warning ("unexpected response size (%zu < %zu)",
+                              rsp_size, sizeof (struct ratp_bb_gpio_set_direction_response));
+        st = RATP_STATUS_INVALID_DATA;
+        goto out;
+    }
+
+    rsp_gpio = (struct ratp_bb_gpio_set_direction_response *)rsp;
+
+    /* Check errno */
+    rsp_errno = be32toh (rsp_gpio->errno_v);
+    if (rsp_errno != 0) {
+        ratp_barebox_warning ("operation failed with error: %d", rsp_errno);
+        st = RATP_STATUS_ERROR;
+        goto out;
+    }
+
+    st = RATP_STATUS_OK;
+
+out:
+    free (rsp);
+    free (req_gpio);
+    return st;
+}
+
 /******************************************************************************/
 /* Reset */
 

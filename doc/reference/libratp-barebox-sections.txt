@@ -29,5 +29,9 @@ ratp_barebox_link_mw
 ratp_barebox_link_i2c_flag_t
 ratp_barebox_link_i2c_read
 ratp_barebox_link_i2c_write
+ratp_barebox_link_gpio_direction_t
+ratp_barebox_link_gpio_get_value
+ratp_barebox_link_gpio_set_value
+ratp_barebox_link_gpio_set_direction
 ratp_barebox_link_reset
 </SECTION>
