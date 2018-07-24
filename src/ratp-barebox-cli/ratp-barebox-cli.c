@@ -704,6 +704,199 @@ out:
 }
 
 static int
+run_gpio_get_value (ratp_link_t  *ratp,
+                    const char   *action_args,
+                    unsigned int  timeout,
+                    bool          quiet)
+{
+    ratp_status_t  st;
+    int            ret = -1;
+    unsigned long  gpio;
+    bool           value;
+
+    gpio = strtoul (action_args, NULL, 10);
+    if (gpio > 0xFFFFFFFF) {
+        fprintf (stderr, "error: invalid GPIO number\n");
+        goto out;
+    }
+
+    if ((st = ratp_link_active_open_sync (ratp, 5000)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't actively open link: %s\n", ratp_status_str (st));
+        goto out;
+    }
+
+    if (!quiet)
+        printf ("Sending gpio-get-value request: gpio %lu\n", gpio);
+    if ((st = ratp_barebox_link_gpio_get_value (ratp, timeout, (unsigned int)gpio, &value)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't gpio-get-value: %s\n", ratp_status_str (st));
+        ret = -1;
+        goto out_close;
+    }
+
+    if (!quiet)
+        printf ("GPIO get:\n");
+    printf ("%u\n", value);
+    ret = 0;
+
+out_close:
+
+    if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
+        fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
+
+out:
+    return ret;
+}
+
+static int
+run_gpio_set_value (ratp_link_t  *ratp,
+                    const char   *action_args,
+                    unsigned int  timeout,
+                    bool          quiet)
+{
+    ratp_status_t  st;
+    int            ret = -1;
+    char          *aux0, *aux1;
+    unsigned long  gpio;
+    unsigned long  value;
+
+    aux0 = strdup (action_args);
+    if (!aux0)
+        goto out;
+
+    aux1 = strchr (aux0, ',');
+    if (!aux1) {
+        fprintf (stderr, "error: only one field given in --gpio-set-value arguments\n");
+        goto out;
+    }
+    *aux1 = '\0';
+    aux1++;
+
+    gpio = strtoul (aux0, NULL, 10);
+    if (gpio > 0xFFFFFFFF) {
+        fprintf (stderr, "error: invalid GPIO number\n");
+        goto out;
+    }
+
+    value = strtoul (aux1, NULL, 10);
+    if (value != 0 && value != 1) {
+        fprintf (stderr, "error: invalid GPIO status (0 or 1), given: %s\n", aux1);
+        goto out;
+    }
+
+    if ((st = ratp_link_active_open_sync (ratp, 5000)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't actively open link: %s\n", ratp_status_str (st));
+        goto out;
+    }
+
+    if (!quiet)
+        printf ("Sending gpio-set-value request: gpio %lu, value %lu\n", gpio, value);
+    if ((st = ratp_barebox_link_gpio_set_value (ratp, timeout, (unsigned int)gpio, (bool)value)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't gpio-set-value: %s\n", ratp_status_str (st));
+        ret = -1;
+        goto out_close;
+    }
+
+    if (!quiet)
+        printf ("GPIO set\n");
+
+    ret = 0;
+
+out_close:
+
+    if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
+        fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
+
+out:
+    free (aux0);
+    return ret;
+}
+
+static int
+run_gpio_set_direction (ratp_link_t  *ratp,
+                        const char   *action_args,
+                        unsigned int  timeout,
+                        bool          quiet)
+{
+    ratp_status_t  st;
+    int            ret = -1;
+    char          *aux0, *aux1, *aux2;
+    unsigned long  gpio;
+    ratp_barebox_link_gpio_direction_t direction;
+    unsigned long  value;
+
+    aux0 = strdup (action_args);
+    if (!aux0)
+        goto out;
+
+    aux1 = strchr (aux0, ',');
+    if (!aux1) {
+        fprintf (stderr, "error: only one field given in --gpio-set-direction arguments\n");
+        goto out;
+    }
+    *aux1 = '\0';
+    aux1++;
+
+    aux2 = strchr (aux1, ',');
+    if (!aux2) {
+        fprintf (stderr, "error: only two fields given in --gpio-set-direction arguments\n");
+        goto out;
+    }
+    *aux2 = '\0';
+    aux2++;
+
+    gpio = strtoul (aux0, NULL, 10);
+    if (gpio > 0xFFFFFFFF) {
+        fprintf (stderr, "error: invalid GPIO number\n");
+        goto out;
+    }
+
+    if (strcmp (aux1, "input") == 0)
+        direction = RATP_BAREBOX_LINK_GPIO_DIRECTION_INPUT;
+    else if (strcmp (aux1, "output") == 0)
+        direction = RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT;
+    else {
+        fprintf (stderr, "error: invalid GPIO direction (output or input), given: %s\n", aux1);
+        goto out;
+    }
+
+    if (direction == RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT) {
+        value = strtoul (aux2, NULL, 10);
+        if (value != 0 && value != 1) {
+            fprintf (stderr, "error: invalid GPIO status (0 or 1), given: %s\n", aux2);
+            goto out;
+        }
+    } else
+        value = 0;
+
+    if ((st = ratp_link_active_open_sync (ratp, 5000)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't actively open link: %s\n", ratp_status_str (st));
+        goto out;
+    }
+
+    if (!quiet)
+        printf ("Sending gpio-set-direction request: gpio %lu, direction %u, value %lu\n", gpio, direction, value);
+    if ((st = ratp_barebox_link_gpio_set_direction (ratp, timeout, (unsigned int)gpio, direction, (bool)value)) != RATP_STATUS_OK) {
+        fprintf (stderr, "error: couldn't gpio-set-direction: %s\n", ratp_status_str (st));
+        ret = -1;
+        goto out_close;
+    }
+
+    if (!quiet)
+        printf ("GPIO direction set\n");
+
+    ret = 0;
+
+out_close:
+
+    if ((st = ratp_link_close_sync (ratp, 1000)) != RATP_STATUS_OK)
+        fprintf (stderr, "warning: couldn't close link: %s\n", ratp_status_str (st));
+
+out:
+    free (aux0);
+    return ret;
+}
+
+static int
 run_reset (ratp_link_t *ratp,
            bool         force,
            bool         quiet)
@@ -750,6 +943,9 @@ print_help (void)
             "  -w, --mw=[PATH,0xADDR,DATA]                 Memory write DATA to file PATH at ADDR.\n"
             "  -M, --i2c-read=[0xBUS,0xADDR,(0xREG),SIZE]  i2c read SIZE bytes from device at BUS/ADDR.\n"
             "  -W, --i2c-write=[0xBUS,0xADDR,(0xREG),DATA] i2c write DATA to device at BUS/ADDR.\n"
+            "  -P, --gpio-get-value=[GPIO]                 Get value of a GPIO.\n"
+            "  -Q, --gpio-set-value=[GPIO,BOOL]            Set value of a GPIO.\n"
+            "  -D, --gpio-set-direction=[GPIO,DIR(,BOOL)]  Set direction of a GPIO (and value if 'output').\n"
             "  -r, --reset                                 Request reset.\n"
             "  -R, --force-reset                           Request forced reset.\n"
             "\n"
@@ -775,6 +971,7 @@ print_help (void)
             " * [SIZE] is given in decimal format.\n"
             " * [DATA] is given in hex with 2 digits per byte and ':' as separator,\n"
             "     e.g.: '00:11:22:33'.\n"
+            " * [DIR] may be either 'input' or 'output'.\n"
             " * The MDL is 255 by default as that is what barebox expects.\n"
             "\n");
 }
@@ -808,6 +1005,9 @@ int main (int argc, char **argv)
     char          *action_mw = NULL;
     char          *action_i2c_read = NULL;
     char          *action_i2c_write = NULL;
+    char          *action_gpio_get_value = NULL;
+    char          *action_gpio_set_value = NULL;
+    char          *action_gpio_set_direction = NULL;
     bool           action_reset = NULL;
     bool           action_force_reset = NULL;
     bool           debug = false;
@@ -818,31 +1018,34 @@ int main (int argc, char **argv)
     ratp_status_t  st;
 
     const struct option longopts[] = {
-        { "fifo-in",      required_argument, 0, 'i' },
-        { "fifo-out",     required_argument, 0, 'o' },
-        { "tty",          required_argument, 0, 't' },
-        { "tty-baudrate", required_argument, 0, 'b' },
-        { "ping",         no_argument,       0, 'p' },
-        { "command",      required_argument, 0, 'c' },
-        { "getenv",       required_argument, 0, 'g' },
-        { "md",           required_argument, 0, 'm' },
-        { "mw",           required_argument, 0, 'w' },
-        { "i2c-read",     required_argument, 0, 'M' },
-        { "i2c-write",    required_argument, 0, 'W' },
-        { "reset",        no_argument,       0, 'r' },
-        { "force-reset",  no_argument,       0, 'R' },
-        { "timeout",      required_argument, 0, 'T' },
-        { "quiet",        no_argument,       0, 'q' },
-        { "debug",        no_argument,       0, 'd' },
-        { "version",      no_argument,       0, 'v' },
-        { "help",         no_argument,       0, 'h' },
-        { 0,              0,                 0, 0   },
+        { "fifo-in",            required_argument, 0, 'i' },
+        { "fifo-out",           required_argument, 0, 'o' },
+        { "tty",                required_argument, 0, 't' },
+        { "tty-baudrate",       required_argument, 0, 'b' },
+        { "ping",               no_argument,       0, 'p' },
+        { "command",            required_argument, 0, 'c' },
+        { "getenv",             required_argument, 0, 'g' },
+        { "md",                 required_argument, 0, 'm' },
+        { "mw",                 required_argument, 0, 'w' },
+        { "i2c-read",           required_argument, 0, 'M' },
+        { "i2c-write",          required_argument, 0, 'W' },
+        { "gpio-get-value",     required_argument, 0, 'P' },
+        { "gpio-set-value",     required_argument, 0, 'Q' },
+        { "gpio-set-direction", required_argument, 0, 'D' },
+        { "reset",              no_argument,       0, 'r' },
+        { "force-reset",        no_argument,       0, 'R' },
+        { "timeout",            required_argument, 0, 'T' },
+        { "quiet",              no_argument,       0, 'q' },
+        { "debug",              no_argument,       0, 'd' },
+        { "version",            no_argument,       0, 'v' },
+        { "help",               no_argument,       0, 'h' },
+        { 0,                    0,                 0, 0   },
     };
 
     /* turn off getopt error message */
     opterr = 1;
     while (iarg != -1) {
-        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:m:w:M:W:rRT:qdvh", longopts, &idx);
+        iarg = getopt_long (argc, argv, "i:o:t:b:pc:g:m:w:M:W:P:Q:D:rRT:qdvh", longopts, &idx);
         switch (iarg) {
         case 'i':
             if (fifo_in_path)
@@ -915,6 +1118,24 @@ int main (int argc, char **argv)
             else
                 action_i2c_write = strdup (optarg);
             break;
+        case 'P':
+            if (action_gpio_get_value)
+                fprintf (stderr, "warning: -P,--gpio-get-value given multiple times\n");
+            else
+                action_gpio_get_value = strdup (optarg);
+            break;
+        case 'Q':
+            if (action_gpio_set_value)
+                fprintf (stderr, "warning: -Q,--gpio-set-value given multiple times\n");
+            else
+                action_gpio_set_value = strdup (optarg);
+            break;
+        case 'D':
+            if (action_gpio_set_direction)
+                fprintf (stderr, "warning: -D,--gpio-set-direction given multiple times\n");
+            else
+                action_gpio_set_direction = strdup (optarg);
+            break;
         case 'r':
             action_reset = true;
             break;
@@ -947,6 +1168,9 @@ int main (int argc, char **argv)
                  !!action_mw +
                  !!action_i2c_read +
                  !!action_i2c_write +
+                 !!action_gpio_get_value +
+                 !!action_gpio_set_value +
+                 !!action_gpio_set_direction +
                  action_reset +
                  action_force_reset);
     if (n_actions > 1) {
@@ -1019,6 +1243,12 @@ int main (int argc, char **argv)
         action_ret = run_i2c_read (ratp, action_i2c_read, timeout, quiet);
     else if (action_i2c_write)
         action_ret = run_i2c_write (ratp, action_i2c_write, timeout, quiet);
+    else if (action_gpio_get_value)
+        action_ret = run_gpio_get_value (ratp, action_gpio_get_value, timeout, quiet);
+    else if (action_gpio_set_value)
+        action_ret = run_gpio_set_value (ratp, action_gpio_set_value, timeout, quiet);
+    else if (action_gpio_set_direction)
+        action_ret = run_gpio_set_direction (ratp, action_gpio_set_direction, timeout, quiet);
     else if (action_reset)
         action_ret = run_reset (ratp, false, quiet);
     else if (action_force_reset)
@@ -1026,6 +1256,9 @@ int main (int argc, char **argv)
     else
         assert (0);
 
+    free (action_gpio_get_value);
+    free (action_gpio_set_value);
+    free (action_gpio_set_direction);
     free (action_i2c_write);
     free (action_i2c_read);
     free (action_mw);
