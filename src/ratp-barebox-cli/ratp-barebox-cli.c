@@ -104,7 +104,7 @@ strhex (const void *mem,
         snprintf (&new_str[j], 3, "%02x", data[i]);
         /* And if needed, add separator */
         if (delimiter_length && i != (size - 1) )
-            strncpy (&new_str[j + 2], delimiter, delimiter_length);
+            memcpy (&new_str[j + 2], delimiter, delimiter_length);
     }
 
     /* Set output string */
