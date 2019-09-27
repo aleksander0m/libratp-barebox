@@ -29,10 +29,22 @@
     <keyword type="function" name="ratp_barebox_link_getenv ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-getenv"/>
     <keyword type="function" name="ratp_barebox_link_md ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-md"/>
     <keyword type="function" name="ratp_barebox_link_mw ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-mw"/>
+    <keyword type="function" name="ratp_barebox_link_i2c_read ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-read"/>
+    <keyword type="function" name="ratp_barebox_link_i2c_write ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-write"/>
+    <keyword type="function" name="ratp_barebox_link_gpio_get_value ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-get-value"/>
+    <keyword type="function" name="ratp_barebox_link_gpio_set_value ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-set-value"/>
+    <keyword type="function" name="ratp_barebox_link_gpio_set_direction ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-set-direction"/>
     <keyword type="function" name="ratp_barebox_link_reset ()" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-reset"/>
+    <keyword type="enum" name="enum ratp_barebox_link_i2c_flag_t" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t"/>
+    <keyword type="enum" name="enum ratp_barebox_link_gpio_direction_t" link="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-direction-t"/>
     <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_ERROR" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-ERROR:CAPS"/>
     <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_WARNING" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-WARNING:CAPS"/>
     <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_INFO" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-INFO:CAPS"/>
     <keyword type="constant" name="RATP_BAREBOX_LOG_LEVEL_DEBUG" link="libratp-barebox-Library-logging.html#RATP-BAREBOX-LOG-LEVEL-DEBUG:CAPS"/>
+    <keyword type="constant" name="RATP_BAREBOX_LINK_I2C_FLAG_NONE" link="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-I2C-FLAG-NONE:CAPS"/>
+    <keyword type="constant" name="RATP_BAREBOX_LINK_I2C_FLAG_WIDE_ADDRESS" link="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-I2C-FLAG-WIDE-ADDRESS:CAPS"/>
+    <keyword type="constant" name="RATP_BAREBOX_LINK_I2C_FLAG_MASTER_MODE" link="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-I2C-FLAG-MASTER-MODE:CAPS"/>
+    <keyword type="constant" name="RATP_BAREBOX_LINK_GPIO_DIRECTION_INPUT" link="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-GPIO-DIRECTION-INPUT:CAPS"/>
+    <keyword type="constant" name="RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT" link="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-GPIO-DIRECTION-OUTPUT:CAPS"/>
   </functions>
 </book>

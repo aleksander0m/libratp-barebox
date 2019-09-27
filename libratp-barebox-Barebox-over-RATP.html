@@ -8,7 +8,7 @@
 <link rel="up" href="pt02.html" title="Part II. RATP link operations">
 <link rel="prev" href="pt02.html" title="Part II. RATP link operations">
 <link rel="next" href="ix01.html" title="API Index">
-<meta name="generator" content="GTK-Doc V1.27 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.31 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -84,8 +84,67 @@
 <a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
 </td>
 <td class="function_name">
+<a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-read" title="ratp_barebox_link_i2c_read ()">ratp_barebox_link_i2c_read</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-write" title="ratp_barebox_link_i2c_write ()">ratp_barebox_link_i2c_write</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-get-value" title="ratp_barebox_link_gpio_get_value ()">ratp_barebox_link_gpio_get_value</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-set-value" title="ratp_barebox_link_gpio_set_value ()">ratp_barebox_link_gpio_set_value</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-set-direction" title="ratp_barebox_link_gpio_set_direction ()">ratp_barebox_link_gpio_set_direction</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+</td>
+<td class="function_name">
 <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-reset" title="ratp_barebox_link_reset ()">ratp_barebox_link_reset</a> <span class="c_punctuation">()</span>
 </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libratp-barebox-Barebox-over-RATP.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t">ratp_barebox_link_i2c_flag_t</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-direction-t" title="enum ratp_barebox_link_gpio_direction_t">ratp_barebox_link_gpio_direction_t</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -379,6 +438,329 @@ finish, or 0 to wait forever.</p></td>
 </div>
 <hr>
 <div class="refsect2">
+<a name="ratp-barebox-link-i2c-read"></a><h3>ratp_barebox_link_i2c_read ()</h3>
+<pre class="programlisting"><a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+ratp_barebox_link_i2c_read (<em class="parameter"><code><a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a> *ratp</code></em>,
+                            <em class="parameter"><code><span class="type">unsigned long </span> timeout_ms</code></em>,
+                            <em class="parameter"><code><span class="type">uint8_t</span> bus</code></em>,
+                            <em class="parameter"><code><span class="type">uint8_t</span> addr</code></em>,
+                            <em class="parameter"><code><span class="type">uint16_t</span> reg</code></em>,
+                            <em class="parameter"><code><a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t"><span class="type">ratp_barebox_link_i2c_flag_t</span></a> flags</code></em>,
+                            <em class="parameter"><code><span class="type">uint16_t</span> size</code></em>,
+                            <em class="parameter"><code><span class="type">uint8_t</span> **out</code></em>,
+                            <em class="parameter"><code><span class="type">uint16_t</span> *out_size</code></em>);</pre>
+<p>i2c read.</p>
+<p>Reads <em class="parameter"><code>size</code></em>
+ bytes from device at <em class="parameter"><code>bus</code></em>
+/<em class="parameter"><code>addr</code></em>
+.</p>
+<p>If <a href="../libratp/libratp-Core-library-operations.html#RATP-STATUS-OK:CAPS"><code class="literal">RATP_STATUS_OK</code></a> is returned, <em class="parameter"><code>out</code></em>
+ and <em class="parameter"><code>out_size</code></em>
+ will be set.</p>
+<div class="refsect3">
+<a name="ratp-barebox-link-i2c-read.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>ratp</p></td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>timeout_ms</p></td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
+finish, or 0 to wait forever.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>bus</p></td>
+<td class="parameter_description"><p>bus number.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>addr</p></td>
+<td class="parameter_description"><p>device address.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>reg</p></td>
+<td class="parameter_description"><p>start register.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>a bitmask of <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t"><span class="type">ratp_barebox_link_i2c_flag_t</span></a> values.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>size</p></td>
+<td class="parameter_description"><p>amount of bytes to read.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>out</p></td>
+<td class="parameter_description"><p>output location to store the data read.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>out_size</p></td>
+<td class="parameter_description"><p>size of the data read in <em class="parameter"><code>out</code></em>
+.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="ratp-barebox-link-i2c-read.returns"></a><h4>Returns</h4>
+<p> a <a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="type">ratp_status_t</span></a>.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="ratp-barebox-link-i2c-write"></a><h3>ratp_barebox_link_i2c_write ()</h3>
+<pre class="programlisting"><a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+ratp_barebox_link_i2c_write (<em class="parameter"><code><a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a> *ratp</code></em>,
+                             <em class="parameter"><code><span class="type">unsigned long </span> timeout_ms</code></em>,
+                             <em class="parameter"><code><span class="type">uint8_t</span> bus</code></em>,
+                             <em class="parameter"><code><span class="type">uint8_t</span> addr</code></em>,
+                             <em class="parameter"><code><span class="type">uint16_t</span> reg</code></em>,
+                             <em class="parameter"><code><a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t"><span class="type">ratp_barebox_link_i2c_flag_t</span></a> flags</code></em>,
+                             <em class="parameter"><code>const <span class="type">uint8_t</span> *data</code></em>,
+                             <em class="parameter"><code><span class="type">uint16_t</span> data_size</code></em>,
+                             <em class="parameter"><code><span class="type">uint16_t</span> *out_written</code></em>);</pre>
+<p>i2c write.</p>
+<p>Writes <em class="parameter"><code>data_size</code></em>
+ bytes to the device at <em class="parameter"><code>bus</code></em>
+/<em class="parameter"><code>addr</code></em>
+.</p>
+<p>If <a href="../libratp/libratp-Core-library-operations.html#RATP-STATUS-OK:CAPS"><code class="literal">RATP_STATUS_OK</code></a> is returned, <em class="parameter"><code>out_written</code></em>
+ will be set.</p>
+<div class="refsect3">
+<a name="ratp-barebox-link-i2c-write.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>ratp</p></td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>timeout_ms</p></td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
+finish, or 0 to wait forever.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>bus</p></td>
+<td class="parameter_description"><p>bus number.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>addr</p></td>
+<td class="parameter_description"><p>device address.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>reg</p></td>
+<td class="parameter_description"><p>optional start register, set to 0xffff to ignore.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>a bitmask of <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t"><span class="type">ratp_barebox_link_i2c_flag_t</span></a> values.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>data</p></td>
+<td class="parameter_description"><p>data to write.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>data_size</p></td>
+<td class="parameter_description"><p>amount of bytes to write.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>out_written</p></td>
+<td class="parameter_description"><p>number of bytes successfully written.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="ratp-barebox-link-i2c-write.returns"></a><h4>Returns</h4>
+<p> a <a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="type">ratp_status_t</span></a>.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="ratp-barebox-link-gpio-get-value"></a><h3>ratp_barebox_link_gpio_get_value ()</h3>
+<pre class="programlisting"><a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+ratp_barebox_link_gpio_get_value (<em class="parameter"><code><a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a> *ratp</code></em>,
+                                  <em class="parameter"><code><span class="type">unsigned long </span> timeout_ms</code></em>,
+                                  <em class="parameter"><code><span class="type">uint32_t</span> gpio</code></em>,
+                                  <em class="parameter"><code><span class="type">bool</span> *value</code></em>);</pre>
+<p>Gets the current value of the input GPIO <em class="parameter"><code>gpio</code></em>
+.</p>
+<p>This method should only be used with GPIOs configured as
+<a class="link" href="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-GPIO-DIRECTION-INPUT:CAPS"><code class="literal">RATP_BAREBOX_LINK_GPIO_DIRECTION_INPUT</code></a>.</p>
+<div class="refsect3">
+<a name="ratp-barebox-link-gpio-get-value.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>ratp</p></td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>timeout_ms</p></td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
+finish, or 0 to wait forever.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>gpio</p></td>
+<td class="parameter_description"><p>a GPIO number.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>value</p></td>
+<td class="parameter_description"><p>output location to store the value.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="ratp-barebox-link-gpio-get-value.returns"></a><h4>Returns</h4>
+<p> a <a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="type">ratp_status_t</span></a>.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="ratp-barebox-link-gpio-set-value"></a><h3>ratp_barebox_link_gpio_set_value ()</h3>
+<pre class="programlisting"><a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+ratp_barebox_link_gpio_set_value (<em class="parameter"><code><a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a> *ratp</code></em>,
+                                  <em class="parameter"><code><span class="type">unsigned long </span> timeout_ms</code></em>,
+                                  <em class="parameter"><code><span class="type">uint32_t</span> gpio</code></em>,
+                                  <em class="parameter"><code><span class="type">bool</span> value</code></em>);</pre>
+<p>Sets the current value of the output GPIO <em class="parameter"><code>gpio</code></em>
+.</p>
+<p>This method should only be used with GPIOs configured as
+<a class="link" href="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-GPIO-DIRECTION-OUTPUT:CAPS"><code class="literal">RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT</code></a>.</p>
+<div class="refsect3">
+<a name="ratp-barebox-link-gpio-set-value.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>ratp</p></td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>timeout_ms</p></td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
+finish, or 0 to wait forever.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>gpio</p></td>
+<td class="parameter_description"><p>a GPIO number.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>value</p></td>
+<td class="parameter_description"><p>the value to set.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="ratp-barebox-link-gpio-set-value.returns"></a><h4>Returns</h4>
+<p> a <a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="type">ratp_status_t</span></a>.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="ratp-barebox-link-gpio-set-direction"></a><h3>ratp_barebox_link_gpio_set_direction ()</h3>
+<pre class="programlisting"><a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
+ratp_barebox_link_gpio_set_direction (<em class="parameter"><code><a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a> *ratp</code></em>,
+                                      <em class="parameter"><code><span class="type">unsigned long </span> timeout_ms</code></em>,
+                                      <em class="parameter"><code><span class="type">uint32_t</span> gpio</code></em>,
+                                      <em class="parameter"><code><a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-direction-t" title="enum ratp_barebox_link_gpio_direction_t"><span class="type">ratp_barebox_link_gpio_direction_t</span></a> direction</code></em>,
+                                      <em class="parameter"><code><span class="type">bool</span> value</code></em>);</pre>
+<p>Sets the direction of the GPIO <em class="parameter"><code>gpio</code></em>
+.</p>
+<div class="refsect3">
+<a name="ratp-barebox-link-gpio-set-direction.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>ratp</p></td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>timeout_ms</p></td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
+finish, or 0 to wait forever.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>gpio</p></td>
+<td class="parameter_description"><p>a GPIO number.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>direction</p></td>
+<td class="parameter_description"><p>a <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-direction-t" title="enum ratp_barebox_link_gpio_direction_t"><span class="type">ratp_barebox_link_gpio_direction_t</span></a>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>value</p></td>
+<td class="parameter_description"><p>if <em class="parameter"><code>direction</code></em>
+is <a class="link" href="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-GPIO-DIRECTION-OUTPUT:CAPS"><code class="literal">RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT</code></a>, the value to set.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="ratp-barebox-link-gpio-set-direction.returns"></a><h4>Returns</h4>
+<p> a <a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="type">ratp_status_t</span></a>.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
 <a name="ratp-barebox-link-reset"></a><h3>ratp_barebox_link_reset ()</h3>
 <pre class="programlisting"><a href="../libratp/libratp-Core-library-operations.html#ratp-status-t"><span class="returnvalue">ratp_status_t</span></a>
 ratp_barebox_link_reset (<em class="parameter"><code><a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a> *ratp</code></em>,
@@ -415,9 +797,77 @@ ratp_barebox_link_reset (<em class="parameter"><code><a href="../libratp/libratp
 </div>
 <div class="refsect1">
 <a name="libratp-barebox-Barebox-over-RATP.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="ratp-barebox-link-i2c-flag-t"></a><h3>enum ratp_barebox_link_i2c_flag_t</h3>
+<p>Flags to use in the i2c read/write operations.</p>
+<div class="refsect3">
+<a name="ratp-barebox-link-i2c-flag-t.members"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="RATP-BAREBOX-LINK-I2C-FLAG-NONE:CAPS"></a>RATP_BAREBOX_LINK_I2C_FLAG_NONE</p></td>
+<td class="enum_member_description">
+<p>None.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="RATP-BAREBOX-LINK-I2C-FLAG-WIDE-ADDRESS:CAPS"></a>RATP_BAREBOX_LINK_I2C_FLAG_WIDE_ADDRESS</p></td>
+<td class="enum_member_description">
+<p>Word (16bit) wide access should be used.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="RATP-BAREBOX-LINK-I2C-FLAG-MASTER-MODE:CAPS"></a>RATP_BAREBOX_LINK_I2C_FLAG_MASTER_MODE</p></td>
+<td class="enum_member_description">
+<p>Master send/receive, ignoring start register.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="ratp-barebox-link-gpio-direction-t"></a><h3>enum ratp_barebox_link_gpio_direction_t</h3>
+<p>Direction of the GPIO.</p>
+<div class="refsect3">
+<a name="ratp-barebox-link-gpio-direction-t.members"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="RATP-BAREBOX-LINK-GPIO-DIRECTION-INPUT:CAPS"></a>RATP_BAREBOX_LINK_GPIO_DIRECTION_INPUT</p></td>
+<td class="enum_member_description">
+<p>GPIO configured as input.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="RATP-BAREBOX-LINK-GPIO-DIRECTION-OUTPUT:CAPS"></a>RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT</p></td>
+<td class="enum_member_description">
+<p>GPIO configured as output.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.27</div>
+<hr>Generated by GTK-Doc V1.31</div>
 </body>
 </html>
