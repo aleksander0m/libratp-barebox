@@ -227,6 +227,9 @@ ratp_barebox_link_command (ratp_link_t    *ratp,
     msg->flags = 0;
     memcpy (msg->data, command, command_len);
 
+    if (out_stdout_result)
+        *out_stdout_result = NULL;
+
     if ((st = operation (ratp,
                          timeout_ms,
                          BB_RATP_TYPE_COMMAND_RETURN,
@@ -236,6 +239,10 @@ ratp_barebox_link_command (ratp_link_t    *ratp,
         goto out;
 
     if (response_size != (sizeof (struct ratp_bb) + sizeof (uint32_t))) {
+        if (out_stdout_result) {
+            free (*out_stdout_result);
+            *out_stdout_result = NULL;
+        }
         ratp_barebox_warning ("unexpected response size (%zu != %zu)",
                               response_size, (sizeof (struct ratp_bb) + sizeof (uint32_t)));
         st = RATP_STATUS_INVALID_DATA;
