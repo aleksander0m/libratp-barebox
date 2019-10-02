@@ -29,9 +29,9 @@
 
 /**
  * ratp_barebox_link_ping:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
  *
  * Sends a PING to barebox and waits for the PONG as return.
  *
@@ -42,12 +42,14 @@ ratp_status_t ratp_barebox_link_ping (ratp_link_t   *ratp,
 
 /**
  * ratp_barebox_link_command:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @command: command to send, in ASCII.
- * @out_errno_result: output location to store the errno result returned.
- * @out_stdout_result: output location to store the resulting stdout output..
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
+ * @command: (in) (not nullable): command to send, in ASCII.
+ * @out_errno_result: (out) (optional): output location to store the errno
+ *  result returned.
+ * @out_stdout_result: (out callee-allocates) (optional): output location to
+ *  store the resulting stdout output.
  *
  * Sends a command to barebox and waits for it to finish.
  * Both the command result and the standard output it generated are returned.
@@ -62,11 +64,12 @@ ratp_status_t ratp_barebox_link_command (ratp_link_t    *ratp,
 
 /**
  * ratp_barebox_link_getenv:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @env_name: name of the environment variable to read.
- * @env_value: output location to store the value of the environment variable.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
+ * @env_name: (in): name of the environment variable to read.
+ * @env_value: (out callee-allocates) (optional): output location to store the
+ *  value of the environment variable.
  *
  * Reads the contents of a given environment variable in the remote barebox
  * instance.
@@ -80,14 +83,15 @@ ratp_status_t ratp_barebox_link_getenv (ratp_link_t    *ratp,
 
 /**
  * ratp_barebox_link_md:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @path: path to the display file, or %NULL for the default.
- * @addr: address where to start reading from.
- * @size: amount of bytes to read.
- * @out: output location to store the data read.
- * @out_size: size of the data read in @out.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
+ * @path: (in) (nullable): path to the display file, or %NULL for the default.
+ * @addr: (in): address where to start reading from.
+ * @size: (in): amount of bytes to read.
+ * @out: (out callee-allocates) (array length=out_size) (optional): output
+ *  location to store the data read.
+ * @out_size: (out) (optional): size of the data read in @out.
  *
  * Memory display.
  *
@@ -106,14 +110,14 @@ ratp_status_t ratp_barebox_link_md (ratp_link_t    *ratp,
 
 /**
  * ratp_barebox_link_mw:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @path: path to the display file, or %NULL for the default.
- * @addr: address where to start writing to.
- * @data: data to write.
- * @data_size: amount of bytes to write.
- * @out_written: number of bytes successfully written.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  (in): finish, or 0 to wait forever.
+ * @path: (in) (nullable): path to the display file, or %NULL for the default.
+ * @addr: (in): address where to start writing to.
+ * @data: (in) (array length=data_size) (not nullable): data to write.
+ * @data_size: (in): amount of bytes to write.
+ * @out_written: (out) (optional): number of bytes successfully written.
  *
  * Memory write.
  *
@@ -146,16 +150,17 @@ typedef enum {
 
 /**
  * ratp_barebox_link_i2c_read:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @bus: bus number.
- * @addr: device address.
- * @reg: start register.
- * @flags: a bitmask of #ratp_barebox_link_i2c_flag_t values.
- * @size: amount of bytes to read.
- * @out: output location to store the data read.
- * @out_size: size of the data read in @out.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
+ * @bus: (in): bus number.
+ * @addr: (in): device address.
+ * @reg: (in): start register.
+ * @flags: (in): a bitmask of #ratp_barebox_link_i2c_flag_t values.
+ * @size: (in): amount of bytes to read.
+ * @out: (out callee-allocates) (array length=out_size) (optional): output
+ *  location to store the data read.
+ * @out_size: (out) (optional): size of the data read in @out.
  *
  * i2c read.
  *
@@ -177,16 +182,16 @@ ratp_status_t ratp_barebox_link_i2c_read (ratp_link_t    *ratp,
 
 /**
  * ratp_barebox_link_i2c_write:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @bus: bus number.
- * @addr: device address.
- * @reg: optional start register, set to 0xffff to ignore.
- * @flags: a bitmask of #ratp_barebox_link_i2c_flag_t values.
- * @data: data to write.
- * @data_size: amount of bytes to write.
- * @out_written: number of bytes successfully written.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
+ * @bus: (in): bus number.
+ * @addr: (in): device address.
+ * @reg: (in): optional start register, set to 0xffff to ignore.
+ * @flags: (in): a bitmask of #ratp_barebox_link_i2c_flag_t values.
+ * @data: (in) (array length=data_size) (not nullable): data to write.
+ * @data_size: (in): amount of bytes to write.
+ * @out_written: (out) (optional): number of bytes successfully written.
  *
  * i2c write.
  *
@@ -220,11 +225,11 @@ typedef enum {
 
 /**
  * ratp_barebox_link_gpio_get_value:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @gpio: a GPIO number.
- * @value: output location to store the value.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
+ * @gpio: (in): a GPIO number.
+ * @value: (out) (optional): output location to store the value.
  *
  * Gets the current value of the input GPIO @gpio.
  *
@@ -240,11 +245,11 @@ ratp_status_t ratp_barebox_link_gpio_get_value (ratp_link_t   *ratp,
 
 /**
  * ratp_barebox_link_gpio_set_value:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @gpio: a GPIO number.
- * @value: the value to set.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
+ * @gpio: (in): a GPIO number.
+ * @value: (in): the value to set.
  *
  * Sets the current value of the output GPIO @gpio.
  *
@@ -260,12 +265,13 @@ ratp_status_t ratp_barebox_link_gpio_set_value (ratp_link_t   *ratp,
 
 /**
  * ratp_barebox_link_gpio_set_direction:
- * @ratp: a #ratp_link_t.
- * @timeout_ms: maximum time, in milliseconds, to wait for the operation to
- *  finish, or 0 to wait forever.
- * @gpio: a GPIO number.
- * @direction: a #ratp_barebox_link_gpio_direction_t.
- * @value: if @direction is %RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT, the value to set.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @timeout_ms: (in): maximum time, in milliseconds, to wait for the operation
+ *  to finish, or 0 to wait forever.
+ * @gpio: (in): a GPIO number.
+ * @direction: (in): a #ratp_barebox_link_gpio_direction_t.
+ * @value: (in): if @direction is %RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT, the
+ *  value to set.
  *
  * Sets the direction of the GPIO @gpio.
  *
@@ -279,8 +285,8 @@ ratp_status_t ratp_barebox_link_gpio_set_direction (ratp_link_t   *ratp,
 
 /**
  * ratp_barebox_link_reset:
- * @ratp: a #ratp_link_t.
- * @force: force reset, don't call shutdown.
+ * @ratp: (in) (not nullable): a #ratp_link_t.
+ * @force: (in): force reset, don't call shutdown.
  *
  * Performs a reset in barebox.
  *
@@ -320,7 +326,7 @@ typedef enum {
 
 /**
  * ratp_barebox_log_level_str:
- * @level: a #ratp_barebox_log_level_t.
+ * @level: (in): a #ratp_barebox_log_level_t.
  *
  * Gets a description for the given #ratp_barebox_log_level_t.
  *
@@ -330,7 +336,7 @@ const char *ratp_barebox_log_level_str (ratp_barebox_log_level_t level);
 
 /**
  * ratp_barebox_log_set_level:
- * @level: a #ratp_barebox_log_level_t.
+ * @level: (in): a #ratp_barebox_log_level_t.
  *
  * Sets the logging level.
  *
@@ -349,9 +355,9 @@ ratp_barebox_log_level_t ratp_barebox_log_get_level (void);
 
 /**
  * ratp_barebox_log_handler_t:
- * @level: the #ratp_barebox_log_level_t.
- * @tid: thread ID where the log message was generated.
- * @message: the log message.
+ * @level: (in): the #ratp_barebox_log_level_t.
+ * @tid: (in): thread ID where the log message was generated.
+ * @message: (in): the log message.
  *
  * Logging handler.
  */
@@ -361,7 +367,7 @@ typedef void (* ratp_barebox_log_handler_t) (ratp_barebox_log_level_t  level,
 
 /**
  * ratp_barebox_log_set_handler:
- * @handler: a #ratp_barebox_log_handler_t, or %NULL.
+ * @handler: (in) (nullable): a #ratp_barebox_log_handler_t, or %NULL.
  *
  * Set logging handler.
  *
