@@ -173,14 +173,14 @@ ratp_barebox_link_ping (<em class="parameter"><code><a href="../libratp/libratp-
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -212,29 +212,31 @@ Both the command result and the standard output it generated are returned.</p>
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>command</p></td>
-<td class="parameter_description"><p>command to send, in ASCII.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>command to send, in ASCII. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>out_errno_result</p></td>
-<td class="parameter_description"><p>output location to store the errno result returned.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>output location to store the errno
+result returned. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>out_stdout_result</p></td>
-<td class="parameter_description"><p>output location to store the resulting stdout output..</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>output location to
+store the resulting stdout output. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Out parameter, where callee must allocate storage."><span class="acronym">out callee-allocates</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -265,24 +267,25 @@ instance.</p>
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>env_name</p></td>
-<td class="parameter_description"><p>name of the environment variable to read.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>name of the environment variable to read. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>env_value</p></td>
-<td class="parameter_description"><p>output location to store the value of the environment variable.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>output location to store the
+value of the environment variable. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Out parameter, where callee must allocate storage."><span class="acronym">out callee-allocates</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -322,40 +325,41 @@ If <a href="../libratp/libratp-Core-library-operations.html#RATP-STATUS-OK:CAPS"
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>path</p></td>
-<td class="parameter_description"><p>path to the display file, or <a href="../glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for the default.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>path to the display file, or <a href="../glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for the default. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>addr</p></td>
-<td class="parameter_description"><p>address where to start reading from.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>address where to start reading from. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>amount of bytes to read.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>amount of bytes to read. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>out</p></td>
-<td class="parameter_description"><p>output location to store the data read.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>output
+location to store the data read. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Out parameter, where callee must allocate storage."><span class="acronym">out callee-allocates</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> length=out_size][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>out_size</p></td>
 <td class="parameter_description"><p>size of the data read in <em class="parameter"><code>out</code></em>
-.</p></td>
-<td class="parameter_annotations"> </td>
+. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -394,39 +398,39 @@ If <a href="../libratp/libratp-Core-library-operations.html#RATP-STATUS-OK:CAPS"
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+(in): finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>path</p></td>
-<td class="parameter_description"><p>path to the display file, or <a href="../glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for the default.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>path to the display file, or <a href="../glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for the default. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>addr</p></td>
-<td class="parameter_description"><p>address where to start writing to.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>address where to start writing to. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>data to write.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>data to write. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> length=data_size][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>data_size</p></td>
-<td class="parameter_description"><p>amount of bytes to write.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>amount of bytes to write. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>out_written</p></td>
-<td class="parameter_description"><p>number of bytes successfully written.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>number of bytes successfully written. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -468,50 +472,51 @@ ratp_barebox_link_i2c_read (<em class="parameter"><code><a href="../libratp/libr
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>bus</p></td>
-<td class="parameter_description"><p>bus number.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>bus number. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>addr</p></td>
-<td class="parameter_description"><p>device address.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>device address. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>reg</p></td>
-<td class="parameter_description"><p>start register.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>start register. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>flags</p></td>
-<td class="parameter_description"><p>a bitmask of <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t"><span class="type">ratp_barebox_link_i2c_flag_t</span></a> values.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a bitmask of <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t"><span class="type">ratp_barebox_link_i2c_flag_t</span></a> values. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>amount of bytes to read.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>amount of bytes to read. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>out</p></td>
-<td class="parameter_description"><p>output location to store the data read.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>output
+location to store the data read. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Out parameter, where callee must allocate storage."><span class="acronym">out callee-allocates</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> length=out_size][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>out_size</p></td>
 <td class="parameter_description"><p>size of the data read in <em class="parameter"><code>out</code></em>
-.</p></td>
-<td class="parameter_annotations"> </td>
+. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -552,49 +557,49 @@ ratp_barebox_link_i2c_write (<em class="parameter"><code><a href="../libratp/lib
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>bus</p></td>
-<td class="parameter_description"><p>bus number.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>bus number. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>addr</p></td>
-<td class="parameter_description"><p>device address.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>device address. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>reg</p></td>
-<td class="parameter_description"><p>optional start register, set to 0xffff to ignore.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>optional start register, set to 0xffff to ignore. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>flags</p></td>
-<td class="parameter_description"><p>a bitmask of <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t"><span class="type">ratp_barebox_link_i2c_flag_t</span></a> values.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a bitmask of <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-i2c-flag-t" title="enum ratp_barebox_link_i2c_flag_t"><span class="type">ratp_barebox_link_i2c_flag_t</span></a> values. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>data to write.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>data to write. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> length=data_size][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>data_size</p></td>
-<td class="parameter_description"><p>amount of bytes to write.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>amount of bytes to write. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>out_written</p></td>
-<td class="parameter_description"><p>number of bytes successfully written.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>number of bytes successfully written. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -627,24 +632,24 @@ ratp_barebox_link_gpio_get_value (<em class="parameter"><code><a href="../librat
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>gpio</p></td>
-<td class="parameter_description"><p>a GPIO number.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a GPIO number. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>value</p></td>
-<td class="parameter_description"><p>output location to store the value.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>output location to store the value. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -677,24 +682,24 @@ ratp_barebox_link_gpio_set_value (<em class="parameter"><code><a href="../librat
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>gpio</p></td>
-<td class="parameter_description"><p>a GPIO number.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a GPIO number. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>value</p></td>
-<td class="parameter_description"><p>the value to set.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>the value to set. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -726,30 +731,31 @@ ratp_barebox_link_gpio_set_direction (<em class="parameter"><code><a href="../li
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>timeout_ms</p></td>
-<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation to
-finish, or 0 to wait forever.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>maximum time, in milliseconds, to wait for the operation
+to finish, or 0 to wait forever. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>gpio</p></td>
-<td class="parameter_description"><p>a GPIO number.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a GPIO number. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>direction</p></td>
-<td class="parameter_description"><p>a <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-direction-t" title="enum ratp_barebox_link_gpio_direction_t"><span class="type">ratp_barebox_link_gpio_direction_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a class="link" href="libratp-barebox-Barebox-over-RATP.html#ratp-barebox-link-gpio-direction-t" title="enum ratp_barebox_link_gpio_direction_t"><span class="type">ratp_barebox_link_gpio_direction_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>value</p></td>
 <td class="parameter_description"><p>if <em class="parameter"><code>direction</code></em>
-is <a class="link" href="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-GPIO-DIRECTION-OUTPUT:CAPS"><code class="literal">RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT</code></a>, the value to set.</p></td>
-<td class="parameter_annotations"> </td>
+is <a class="link" href="libratp-barebox-Barebox-over-RATP.html#RATP-BAREBOX-LINK-GPIO-DIRECTION-OUTPUT:CAPS"><code class="literal">RATP_BAREBOX_LINK_GPIO_DIRECTION_OUTPUT</code></a>, the
+value to set. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -778,13 +784,13 @@ ratp_barebox_link_reset (<em class="parameter"><code><a href="../libratp/libratp
 <tbody>
 <tr>
 <td class="parameter_name"><p>ratp</p></td>
-<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>a <a href="../libratp/libratp-Link-object.html#ratp-link-t"><span class="type">ratp_link_t</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>][<acronym title="NULL must not be passed as the value in, out, in-out; or as a return value."><span class="acronym">not nullable</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>force</p></td>
-<td class="parameter_description"><p>force reset, don't call shutdown.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>force reset, don't call shutdown. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for input. Default is transfer none."><span class="acronym">in</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>

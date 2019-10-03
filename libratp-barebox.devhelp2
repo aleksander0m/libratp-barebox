@@ -9,6 +9,7 @@
       <sub name="Barebox over RATP" link="libratp-barebox-Barebox-over-RATP.html"/>
     </sub>
     <sub name="API Index" link="ix01.html"/>
+    <sub name="Annotation Glossary" link="annotation-glossary.html"/>
   </chapters>
   <functions>
     <keyword type="function" name="ratp_barebox_log_level_str ()" link="libratp-barebox-Library-logging.html#ratp-barebox-log-level-str"/>
