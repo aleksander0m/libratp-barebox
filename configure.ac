@@ -4,7 +4,7 @@ AC_PREREQ([2.68])
 dnl The libadn version number
 m4_define([ratp_barebox_major_version], [0])
 m4_define([ratp_barebox_minor_version], [0])
-m4_define([ratp_barebox_micro_version], [7])
+m4_define([ratp_barebox_micro_version], [8])
 m4_define([ratp_barebox_version],
           [ratp_barebox_major_version.ratp_barebox_minor_version.ratp_barebox_micro_version])
 
