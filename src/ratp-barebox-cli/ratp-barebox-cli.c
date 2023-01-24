@@ -541,7 +541,7 @@ run_i2c_read (ratp_link_t  *ratp,
             goto out;
         }
         reg = strtoul (aux2, NULL, 16);
-        assert (reglen <= 0xFFFF);
+        assert (reg <= 0xFFFF);
         if (reglen == 4)
             flags |= RATP_BAREBOX_LINK_I2C_FLAG_WIDE_ADDRESS;
     }
@@ -659,7 +659,7 @@ run_i2c_write (ratp_link_t  *ratp,
             goto out;
         }
         reg = strtoul (aux2, NULL, 16);
-        assert (reglen <= 0xFFFF);
+        assert (reg <= 0xFFFF);
         if (reglen == 4)
             flags |= RATP_BAREBOX_LINK_I2C_FLAG_WIDE_ADDRESS;
     }
